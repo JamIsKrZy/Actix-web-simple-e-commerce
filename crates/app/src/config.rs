@@ -1,5 +1,7 @@
 use std::sync::{OnceLock};
 
+use actix_web::cookie::Key;
+
 
 
 pub fn config() -> Config{
@@ -27,11 +29,16 @@ pub fn config() -> Config{
             panic!("Unable to parse variable: {e:?}")
         });
 
+        let secret = dotenvy::var("SECRET").unwrap_or_else(|e|{
+            panic!("Undefined \"SECRET\" Environment: {e:?}")
+        });
+
 
         Config { 
             addr,
             port,
-            workers
+            workers,
+            secret
         }
     })
     .clone()
@@ -42,13 +49,18 @@ pub fn config() -> Config{
 pub struct Config{
     pub addr: String,
     pub port: u16,
-    pub workers: usize
+    pub workers: usize,
+    pub secret: String,
 }
 
 impl Config{
 
     pub fn bind_addr(&self) -> (&str, u16){
         (self.addr.as_str(), self.port)
+    }
+
+    pub fn session_key(&self) -> Key{
+        Key::from(self.secret.as_bytes())
     }
 
 }

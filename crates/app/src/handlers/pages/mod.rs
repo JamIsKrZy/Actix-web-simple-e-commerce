@@ -45,8 +45,7 @@ mod template{
     use actix_files::NamedFile;
     use actix_session::Session;
     use actix_web::{get, post, web::{self, ServiceConfig}, Responder};
-    use db_core::Role;
-    use lib_core::Context;
+    use db_core::{ctx::Context, Role};
 
     use crate::Error;
 
@@ -91,7 +90,7 @@ mod template{
     async fn user_actions(
         session: Session
     ) -> Result<impl Responder, crate::Error> {
-        let user = session.get::<Context>("us_ctx")
+        let user = session.get::<Context>("usr_ctx")
             .map_err(|e| Error::External(Cow::Owned(e.to_string())))?;
 
         match user {

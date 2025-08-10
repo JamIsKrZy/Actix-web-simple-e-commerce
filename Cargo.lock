@@ -402,6 +402,7 @@ dependencies = [
  "log",
  "serde",
  "serde_json",
+ "support-core",
 ]
 
 [[package]]
@@ -1503,6 +1504,7 @@ version = "0.1.0"
 dependencies = [
  "argon2",
  "db-core",
+ "jsonwebtoken",
  "serde",
  "support-core",
  "uuid",

@@ -1,13 +1,15 @@
 use std::marker::PhantomData;
 
-use support_core::password_hasher::{GetPassword, HashPassword, PasswordHashifier};
+use support_core::password_hasher::{GetPassword, PasswordHashifier};
 use sqlx::{prelude::{FromRow, Type}, Database, Postgres};
 use uuid::Uuid;
 
-use crate::utils::DbPoolExtract;
+use crate::{ctx::Context, utils::DbPoolExtract, DbError};
 
 use super::QueryResult;
 use serde::{Deserialize, Serialize};
+
+use support_core::password_hasher::HashPassword;
 
 // region:    --- States
 
@@ -31,7 +33,7 @@ pub enum Role {
 
 
 // region:    --- Schemas
-#[derive(Debug, Deserialize, FromRow)]
+#[derive(Debug, Deserialize)]
 pub struct Login<S: PasswordState>{
     username: String,
     password: String,
@@ -40,6 +42,13 @@ pub struct Login<S: PasswordState>{
 }
 
 #[derive(Debug, Deserialize, FromRow)]
+pub struct UserCredential{
+    id: String,
+    password: String,
+    role: Role
+}
+
+#[derive(Debug, Deserialize)]
 pub struct SignUpUser<S: PasswordState>{
     pub username: String,
     pub email: String,
@@ -74,7 +83,7 @@ impl GetPassword for Login<RawPassword>{
 
 impl GetPassword for SignUpUser<RawPassword>{
     fn password_bytes(&self) -> &[u8] {
-        todo!()
+        self.password.as_bytes()
     }
 }
 
@@ -104,7 +113,16 @@ impl<H> HashPassword<H> for SignUpUser<RawPassword> where
     type Into = SignUpUser<HashedPassword>;
 
     fn to(self, hashed_password: String) -> Self::Into {
-        todo!()
+        SignUpUser::<HashedPassword>{
+            username: self.username,
+            email: self.email,
+            first_name: self.first_name,
+            last_name: self.last_name,
+            phone_no: self.phone_no,
+            location: self.location,
+            password: hashed_password,
+            _phantom: PhantomData,
+        }
     }
 }
 
@@ -129,8 +147,8 @@ impl Bmc{
 
     pub async fn insert(
         model: SignUpUser<HashedPassword>,
-        dm: impl DbPoolExtract<Postgres>
-    ) -> QueryResult<Uuid> {
+        dm: &impl DbPoolExtract<Postgres>
+    ) -> QueryResult<Context> {
 
         let SignUpUser { 
             username, 
@@ -143,8 +161,9 @@ impl Bmc{
             _phantom 
         } = model;
     
-        let id: Uuid = sqlx::query_scalar!("
-            INSERT INTO users(
+        let id: Context = sqlx::query_as!(
+            Context,
+            "INSERT INTO users(
                 email, password, username,
                 first_name, last_name, location,
                 phone_no
@@ -154,7 +173,7 @@ impl Bmc{
                 $4, $5, $6,
                 $7
             ) 
-            RETURNING id",
+            RETURNING id, role as \"role:Role\"",
             email, password, username,
             first_name, last_name, location,
             phone_no
@@ -162,18 +181,39 @@ impl Bmc{
         .fetch_one(dm.pool())
         .await
         .map_err(|e|{
-            crate::Error::FailedInsert{log: e.to_string()}
+            crate::DbError::FailedInsert{log: e.to_string()}
         })?;
 
         Ok(id)
     }
 
+    pub async fn fetch_one_user(
+        username: String,
+        dm: &impl DbPoolExtract<Postgres>
+    ) -> QueryResult<UserCredential> {
+
+        let user = sqlx::query_as!(
+            UserCredential,
+            "SELECT 
+                id, password, role as \"role:Role\"
+            FROM users
+            WHERE username=$1 OR email=$1",
+            username
+        ) 
+        .fetch_one(dm.pool())
+        .await
+        .map_err(|e| DbError::FailedSelect { log: e.to_string() })?;
+
+        Ok(user)
+    }
+
 
 
     pub fn list(
-
+        username: String,
+        dm: &impl DbPoolExtract<Postgres>
     ) -> QueryResult<Vec<()>>{
-        todo!()    
+        todo!()
     }
 
     pub fn update(

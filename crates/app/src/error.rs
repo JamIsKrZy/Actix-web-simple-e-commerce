@@ -1,16 +1,23 @@
 use std::borrow::Cow;
 
-use actix_web::{FromRequest, ResponseError};
+use actix_web::{http::StatusCode, FromRequest, ResponseError};
 use derive_more::Display;
 
 
 #[derive(Debug, Display)]
 pub enum Error{
+
+    #[display("Error Message: ")]
+    ErrorResponse(StatusCode, Cow<'static, str>),
+
     #[display("Datbase Error")]
-    DatabaseError(db_core::Error),
+    DatabaseError(db_core::DbError),
 
     #[display("Unauthorized route")]
     Unauthorized,
+
+    #[display("Internal Server Problem")]
+    InternalError,
 
     External(Cow<'static, str>)
 }

@@ -14,7 +14,7 @@ pub use crate::models::user::Role;
 
 
 
-pub use error::Error;
+pub use error::DbError;
 
 pub struct PostgressDbManager{
     pool: PgPool 
@@ -38,7 +38,7 @@ impl PostgressDbManager{
 
     /// Used for testing 
     pub async fn init_test_connection() -> Self{
-        let url = dotenvy::var("DATABASE_URL")
+        let url = dotenvy::var("TEST_DATABASE_URL")
             .expect("Environment variable \"TEST_DATABASE_URL\" not found");
 
         let pool = PgPoolOptions::new()

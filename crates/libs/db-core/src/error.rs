@@ -1,7 +1,7 @@
 
 
 #[derive(Debug)]
-pub enum Error{
+pub enum DbError{
     FailedInsert{log: String},
     FailedSelect{log: String},
     

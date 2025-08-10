@@ -4,4 +4,5 @@ pub mod product;
 pub mod bundles;
 
 
-pub(in crate::models) type QueryResult<T> = Result<T, crate::Error>;
+pub(in crate::models) type QueryResult<T> = Result<T, crate::DbError>;
+

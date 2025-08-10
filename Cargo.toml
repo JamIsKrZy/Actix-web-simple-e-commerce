@@ -17,7 +17,7 @@ default-members = ["crates/app"]
 
 [workspace.dependencies]
 actix-web = { version = "4.11.0", features = []}
-actix-session = {version = "0.10.1"}
+actix-session = {version = "0.10.1", features = ["cookie-session"]}
 argon2 = {version = "0.5.3"}
 
 
