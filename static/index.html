@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.6/dist/htmx.min.js" integrity="sha384-Akqfrbj/HpNVo8k11SXBb6TlBWmXXlYQrCSqEWmyKJe+hDm3Z/B2WVG4smwBkRVm" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="header">
+        <div>Project Name</div>
+        <div id="actions"
+            hx-get="/template/actions"
+            hx-target="#actions"
+            hx-trigger="load"
+        >
+            <div class="login-button">Login</div>
+        </div>
+    </div>
+
+    <main>
+
+        <div class="announcments-container">
+            Announcments
+        </div>
+        <div class="main-container">
+            <div class="display-container">
+                <h3>Discount List</h3>
+                <div id="product-list-container" 
+                    hx-get="/api/public/product-list"
+                    hx-trigger="load">
+
+                    <div class="loading">
+                        <img height="30"  src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." />
+                        <h4>Loading, please wait...</h4>
+                    </div>
+                    <!-- Wait For Api Response -->
+                </div>
+            </div>
+
+            <div class="display-container">
+                <h3>Product List</h3>
+                <div id="product-list-container" 
+                    hx-get="/api/public/product-list"
+                    hx-trigger="load">
+
+                    <div class="loading">
+                        <img height="30"  src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." />
+                        <h4>Loading, please wait...</h4>
+                    </div>
+                    <!-- Wait For Api Response -->
+                </div>
+            </div>
+
+            <div class="display-container">
+                <h3>Bundles List</h3>
+                <div id="product-list-container" 
+                    hx-get="/api/public/product-list"
+                    hx-trigger="load">
+
+                    <div class="loading">
+                        <img height="30"  src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." />
+                        <h4>Loading, please wait...</h4>
+                    </div>
+                    <!-- Wait For Api Response -->
+                </div>
+            </div>
+
+            
+        </div>
+        
+    </main>
+
+    
+</body>
+</html>

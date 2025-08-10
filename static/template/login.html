@@ -1,0 +1,23 @@
+<h2>Project Name</h2>
+<span>Login User</span>     
+<form 
+    hx-post="/api/login" 
+    hx-trigger="submit" 
+    hx-target="#login-result" 
+>   
+    <div>
+        <label for="username">Username/Email</label>
+        <input type="text" name="username" id="username" required>
+    </div>
+    <div>
+        <label for="password">Password</label>
+        <input type="password" name="password" id="password" required>
+    </div>
+
+    <button type="submit">Submit</button>
+</form>
+
+
+<button hx-get="/template/auth/signup">SignUp</button>
+<!-- This div will be updated with the server's response -->
+<div id="login-result"></div>

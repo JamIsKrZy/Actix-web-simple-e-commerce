@@ -1,0 +1,23 @@
+[package]
+name = "app"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+dev_env = []
+
+[dependencies]
+actix-web={workspace = true}
+actix-session={workspace = true}
+
+serde={workspace = true}
+serde_json={workspace = true}
+
+dotenvy = {workspace = true}
+derive_more = "2.0.1"
+
+db-core={path = "../libs/db-core"}
+env_logger = "0.11.8"
+log = "0.4.27"
+actix-files = "0.6.6"
+lib-core={path = "../libs/lib-core"}
