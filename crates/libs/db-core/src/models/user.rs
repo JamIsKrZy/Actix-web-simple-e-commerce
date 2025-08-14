@@ -66,6 +66,14 @@ pub struct SignUpUser<S: PasswordState>{
 // added user coming from admin previlage
 #[derive(Debug, Deserialize, FromRow)]
 pub struct AddUser<S: PasswordState>{
+    pub username: String,
+    pub email: String,
+    pub first_name: String,
+    pub last_name: String,
+    pub phone_no: String,
+    pub location: String,
+    pub password: String,
+    pub role: Role,
     #[serde(skip)]
     _phantom: PhantomData<S>
 }
@@ -188,6 +196,50 @@ impl Bmc{
 
         Ok(id)
     }
+
+    pub async fn insert_with_role(
+        model: AddUser<HashedPassword>,
+        dm: &impl DbPoolExtract<Postgres>
+    ) -> QueryResult<Context> {
+
+        let AddUser { 
+            username, 
+            first_name, 
+            last_name, 
+            password, 
+            email, 
+            phone_no, 
+            location, 
+            role,
+            _phantom 
+        } = model;
+    
+        let id: Context = sqlx::query_as!(
+            Context,
+            "INSERT INTO users(
+                email, password, username,
+                first_name, last_name, location,
+                phone_no, role
+            ) 
+            VALUES ( 
+                $1, $2, $3,
+                $4, $5, $6,
+                $7, $8::user_role
+            ) 
+            RETURNING id, role as \"role:Role\"",
+            email, password, username,
+            first_name, last_name, location,
+            phone_no, role as _
+        )
+        .fetch_one(dm.pool())
+        .await
+        .map_err(|e|{
+            crate::DbError::FailedInsert{log: e.to_string()}
+        })?;
+
+        Ok(id)
+    }
+
 
     pub async fn fetch_one_user(
         username: impl AsRef<str>,
