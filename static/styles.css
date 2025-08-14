@@ -73,3 +73,10 @@ main .main-container{
     background-color: burlywood;
 }
 
+
+.container{
+    background-color: rgba(rgba(57, 15, 78, 0.633), green, blue, alpha);
+    width: auto;
+    height: 5rem;
+}
+

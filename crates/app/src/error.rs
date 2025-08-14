@@ -2,10 +2,15 @@ use std::borrow::Cow;
 
 use actix_web::{http::StatusCode, FromRequest, ResponseError};
 use derive_more::Display;
+use support_core::password_hasher::HashError;
 
 
 #[derive(Debug, Display)]
 pub enum Error{
+
+    // Internal Server
+    #[display("Hash Error internal problem")]
+    HashErr(HashError),
 
     #[display("Error Message: ")]
     ErrorResponse(StatusCode, Cow<'static, str>),

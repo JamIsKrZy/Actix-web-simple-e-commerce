@@ -4,7 +4,7 @@ use app::{config::config, handlers};
 use db_core::PostgressDbManager;
 use env_logger::Env;
 
-use lib_core::AppPasswordHasher;
+use lib_core::{AppPasswordHasher, JwtHandler};
 
 
 
@@ -34,15 +34,27 @@ async fn main() -> std::io::Result<()> {
         }
     );
 
+    let jwt_handler = web::Data::new(
+        if cfg!(feature = "dev_env") {
+            JwtHandler::default()
+        } else {
+            JwtHandler::new()
+        }
+    );
+
+
 
     let config = config();
     let app_pass_hash =  web::Data::new(AppPasswordHasher::default());
     let key = config.session_key();
+    
+    
 
     HttpServer::new( move || {
         let session_handler = app::build_session_handler(key.clone());
 
         App::new()
+            .app_data(jwt_handler.clone())
             .app_data(dm.clone())
             .app_data(app_pass_hash.clone())
             .wrap(session_handler)

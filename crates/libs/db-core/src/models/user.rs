@@ -35,18 +35,20 @@ pub enum Role {
 // region:    --- Schemas
 #[derive(Debug, Deserialize)]
 pub struct Login<S: PasswordState>{
-    username: String,
-    password: String,
+    pub username: String,
+    pub password: String,
     #[serde(skip)]
     _phantom: PhantomData<S>
 }
 
 #[derive(Debug, Deserialize, FromRow)]
 pub struct UserCredential{
-    id: String,
-    password: String,
-    role: Role
+    pub id: Uuid,
+    pub password: String,
+    pub role: Role
 }
+
+
 
 #[derive(Debug, Deserialize)]
 pub struct SignUpUser<S: PasswordState>{
@@ -77,13 +79,13 @@ pub struct AddUser<S: PasswordState>{
 
 impl GetPassword for Login<RawPassword>{
     fn password_bytes(&self) -> &[u8] {
-        self.password.as_bytes()
+        self.password.trim().as_bytes()
     }
 }
 
 impl GetPassword for SignUpUser<RawPassword>{
     fn password_bytes(&self) -> &[u8] {
-        self.password.as_bytes()
+        self.password.trim().as_bytes()
     }
 }
 
@@ -188,7 +190,7 @@ impl Bmc{
     }
 
     pub async fn fetch_one_user(
-        username: String,
+        username: impl AsRef<str>,
         dm: &impl DbPoolExtract<Postgres>
     ) -> QueryResult<UserCredential> {
 
@@ -198,7 +200,7 @@ impl Bmc{
                 id, password, role as \"role:Role\"
             FROM users
             WHERE username=$1 OR email=$1",
-            username
+            username.as_ref()
         ) 
         .fetch_one(dm.pool())
         .await

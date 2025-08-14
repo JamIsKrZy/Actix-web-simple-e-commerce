@@ -14,7 +14,7 @@ services:
     container_name: pgadmin
     ports:
       - "6505:80"
-    environment:
+    env_file:
       - ./dev.env
     depends_on:
       - postgres

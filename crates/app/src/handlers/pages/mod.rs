@@ -42,10 +42,13 @@ async fn book_service() -> impl Responder {
 mod template{
     use std::borrow::Cow;
 
+    use lib_core::template_format::{UserActionTemplate, ActionItem};
+
     use actix_files::NamedFile;
     use actix_session::Session;
-    use actix_web::{get, post, web::{self, ServiceConfig}, Responder};
+    use actix_web::{get, post, web::{self, ServiceConfig}, HttpResponse, Responder};
     use db_core::{ctx::Context, Role};
+    use lib_core::user_action_new;
 
     use crate::Error;
 
@@ -81,7 +84,7 @@ mod template{
     }
 
     /// Returns list of action of the user based role
-    /// Admin: [Products, Service, Control, Records]
+    /// Admin: [Records]
     /// Worker: [InOrder]
     /// Regular: [Buy, Search, My Cart]
     /// 
@@ -95,9 +98,38 @@ mod template{
 
         match user {
             Some(ctx) => match ctx.role {
-                Role::Regular => Ok(""),
-                Role::Worker => Ok(""),
-                Role::Admin => Ok(""),
+                Role::Regular => {
+                    let action = user_action_new!(
+                        ("Search","/search"),
+                        ("My Cart","/carts"),
+                        ("Message","/messages"),
+                        ("Profile","/profile")
+                    );
+                    
+                    Ok(HttpResponse::Ok().body(action.to_string()))
+                },
+                Role::Worker => {
+                    
+                    let action = user_action_new!(
+                        ("Services","/services"),
+                        ("Records","/records"),
+                        ("Message","/messages"),
+                        ("Profile","/profile"),
+                    );
+                    
+                    Ok(HttpResponse::Ok().body(action.to_string()))
+                },
+                Role::Admin => {
+                    
+                    let action = user_action_new!(
+                        ("Manage","/manage"),
+                        ("Records","/records"),
+                        ("Message","/messages"),
+                        ("Profile","/profile")
+                    );
+                    
+                    Ok(HttpResponse::Ok().body(action.to_string()))
+                },
             },
             None => Err(crate::Error::Unauthorized),
         }

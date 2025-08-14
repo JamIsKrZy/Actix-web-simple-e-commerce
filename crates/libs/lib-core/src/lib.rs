@@ -1,3 +1,5 @@
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+
 use argon2::Argon2;
 use db_core::Role;
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation};
@@ -5,6 +7,29 @@ use serde::{Deserialize, Serialize};
 use support_core::{jwt::{JwtDecoder, JwtEncoder}, password_hasher::PasswordHashifier};
 use uuid::Uuid;
 
+
+pub mod template_format;
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct Claim{
+    exp: usize
+}
+
+impl Claim{
+    pub fn new() -> Result<Self, ()>{
+        let exp = SystemTime::now()
+            .checked_add(Duration::from_secs(2 * 24 * 60 * 60))
+            .ok_or(())?
+            .duration_since(UNIX_EPOCH)
+            .map_err(|_| ())?
+            .as_secs() as usize;
+            
+
+        Ok(Self { 
+            exp
+        })
+    }
+}
 
 
 pub struct JwtHandler{
@@ -24,6 +49,12 @@ impl JwtEncoder for JwtHandler{
 impl JwtDecoder for JwtHandler{
     fn fields(&self) -> (&DecodingKey, &Validation) {
         (&self.decode_key, &self.validation)
+    }
+}
+
+impl JwtHandler{
+    pub fn new() -> Self{
+        todo!()
     }
 }
 
@@ -80,5 +111,28 @@ impl Default for AppPasswordHasher{
 impl AppPasswordHasher {
     pub fn new() -> Self{
         todo!()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::{AppPasswordHasher};
+    use support_core::password_hasher::PasswordHashifier;
+
+
+    #[test]
+    fn default_verify_password(){
+        let hasher = AppPasswordHasher::default();
+
+        let password = "@Password123!";
+
+        let hash_info = hasher.hash_password(password.as_bytes())
+            .expect("Failed to hash");
+
+        let _ = hasher.verify_password(
+            password.as_bytes(), 
+            hash_info
+        ).expect("Failed password varify!");
+
     }
 }
