@@ -15,7 +15,7 @@ CREATE TABLE
 
         stocks INT NOT NULL,
         created_by UUID NOT NULL,
-        create_at TIMESTAMP NOT NULL,
+        create_at TIMESTAMP NOT NULL DEFAULT now(),
         edited_by UUID,
         edited_at TIMESTAMP NOT NULL,
 

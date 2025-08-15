@@ -18,7 +18,7 @@ pub fn scope(cfg: &mut ServiceConfig){
 }
 
 async fn default_route() -> impl Responder{
-    HttpResponse::NotFound().body("Endpoint not found!")
+    HttpResponse::NotFound().body(include_str!("../../../../static/notFound.html"))
 }
 
 

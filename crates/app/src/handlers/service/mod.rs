@@ -30,9 +30,12 @@ mod dev{
 
     use support_core::password_hasher::HashPassword;
 
+    use crate::handlers::HandlerResult;
+
     pub fn scope(cfg: &mut ServiceConfig){
         cfg.service(check)
             .service(debug_payload)
+            .service(add_user)
         ;  
     }
 
@@ -78,7 +81,7 @@ mod dev{
         user_info: web::Json<AddUser<RawPassword>>,
         md: web::Data<PostgressDbManager>,
         pass_hash: web::Data<AppPasswordHasher>,
-    ) -> impl Responder {
+    ) -> HandlerResult {
         
         let hasher = pass_hash.into_inner();
         let hashed_user = user_info.into_inner()
@@ -88,10 +91,11 @@ mod dev{
             .map_err(|e| crate::Error::HashErr(e))?;
 
 
-        user::Bmc::insert_with_role(hashed_user, md.as_ref());
+        let _ctx = user::Bmc::insert_with_role(hashed_user, md.as_ref())
+            .await
+            .map_err(|e| crate::Error::DatabaseError(e))?;
 
-        ""
-
+        Ok(HttpResponse::Created().body("User Created!"))
     }
 
 }

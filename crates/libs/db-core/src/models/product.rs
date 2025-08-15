@@ -2,9 +2,10 @@
 use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-use sqlx::prelude::FromRow;
+use sqlx::{prelude::FromRow, Postgres};
+use uuid::Uuid;
 
-use crate::models::QueryResult;
+use crate::{models::QueryResult, utils::DbPoolExtract};
 
 
 
@@ -51,10 +52,46 @@ pub struct Bmc;
 
 impl Bmc{
 
-    pub fn insert_one(
+    pub async fn insert_one(
+        product: NewProduct,
+        who: impl AsRef<Uuid>,
+        db: &impl DbPoolExtract<Postgres> 
+    ) -> QueryResult<()> {
+
+        let NewProduct { 
+            name, 
+            description, 
+            price, 
+            stock 
+        } = product;
         
-    ) -> QueryResult<i32> {
-        todo!()
+        let _ = sqlx::query!("
+            INSERT INTO products(
+                name, description, price, 
+                stocks, created_by 
+            ) VALUES (
+                $1, $2, $3, 
+                $4, $5
+            )",
+            name, description, price, 
+            stock, who.as_ref()
+        )
+        .execute(db.pool())
+        .await
+        .map_err(|e| 
+            crate::DbError::FailedInsert { log: e.to_string() }
+        )?;
+
+        Ok(())
+
+    }
+
+
+    pub async fn get_list(
+        
+    ) -> QueryResult<()> {
+
+        Ok(())
     }
 
 }

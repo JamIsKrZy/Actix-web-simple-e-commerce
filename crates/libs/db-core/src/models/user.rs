@@ -71,7 +71,7 @@ pub struct AddUser<S: PasswordState>{
     pub first_name: String,
     pub last_name: String,
     pub phone_no: String,
-    pub location: String,
+    pub location: Option<String>,
     pub password: String,
     pub role: Role,
     #[serde(skip)]
@@ -99,7 +99,7 @@ impl GetPassword for SignUpUser<RawPassword>{
 
 impl GetPassword for AddUser<RawPassword>{
     fn password_bytes(&self) -> &[u8] {
-        todo!()
+        self.password.trim().as_bytes()
     }
 }
 
@@ -142,7 +142,17 @@ impl<H> HashPassword<H> for AddUser<RawPassword> where
     type Into = AddUser<HashedPassword>;
 
     fn to(self, hashed_password: String) -> Self::Into {
-        todo!()
+        AddUser::<HashedPassword>{
+            username: self.username,
+            email: self.email,
+            first_name: self.first_name,
+            last_name: self.last_name,
+            phone_no: self.phone_no,
+            location: self.location,
+            password: hashed_password,
+            role: self.role,
+            _phantom: PhantomData,
+        }
     }
 }
 
