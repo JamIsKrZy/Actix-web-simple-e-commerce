@@ -81,7 +81,7 @@ mod template{
 
     use actix_files::NamedFile;
     use actix_session::Session;
-    use actix_web::{get, post, web::{self, ServiceConfig}, HttpResponse, Responder};
+    use actix_web::{get, web::{self, ServiceConfig}, HttpResponse, Responder};
     use db_core::{ctx::Context, Role};
     use lib_core::user_action_new;
 

@@ -1,5 +1,5 @@
 {% for product in products %}
-    <tr>
+    <tr data-id="{{ product.id }}">
         <td>{{ product.name }}</td>
         <td>{{ product.price }}</td>
         <td>{{ product.stocks}}</td>
@@ -19,7 +19,7 @@
         </td>
         <td>
             <button>Edit</button>
-            <button>Delete</button>
+            <button onclick="openDeleteModal(this)">Delete</button>
         </td>
     </tr>
 {% endfor %}
