@@ -1,11 +1,9 @@
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use argon2::Argon2;
-use db_core::Role;
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 use support_core::{jwt::{JwtDecoder, JwtEncoder}, password_hasher::PasswordHashifier};
-use uuid::Uuid;
 
 
 pub mod template_format;

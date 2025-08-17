@@ -3,7 +3,7 @@ pub mod error;
 pub mod handlers;
 
 
-use actix_session::{config::{CookieContentSecurity, PersistentSession, SessionMiddlewareBuilder}, storage::CookieSessionStore, SessionMiddleware};
+use actix_session::{config::{CookieContentSecurity, PersistentSession}, storage::CookieSessionStore, SessionMiddleware};
 use actix_web::cookie::{time::Duration, Key};
 pub use error::Error;
 

@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use actix_web::{http::StatusCode, FromRequest, ResponseError};
+use actix_web::{http::StatusCode, ResponseError};
 use derive_more::Display;
 use support_core::password_hasher::HashError;
 
