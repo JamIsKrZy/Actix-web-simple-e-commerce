@@ -1,0 +1,13 @@
+[package]
+name = "extension"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+actix-web={workspace = true}
+actix-session={workspace = true}
+serde={workspace = true}
+support-core={path = "../support-core"}
+db-core={path = "../db-core"}
+uuid={workspace = true, features = ["serde"]}
+serde_json={workspace = true}

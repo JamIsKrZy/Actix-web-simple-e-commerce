@@ -27,6 +27,7 @@ impl<S,B,JwtAppData> Transform<S, ServiceRequest> for AuthJwt<JwtAppData> where
     }
 }
 
+
 impl<S,B, JwtAppData> Service<ServiceRequest> for AuthJwtService<JwtAppData, S> where 
     S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
     S::Future: 'static,

@@ -1,9 +1,13 @@
 use std::{borrow::Cow};
 
 use actix_files::{Files, NamedFile};
-use actix_web::{get, web::{ServiceConfig}, HttpResponse, Responder};
+use actix_session::Session;
+use actix_web::{get, web::{self, ServiceConfig}, HttpResponse, Responder};
+use db_core::{ctx::Context, Role};
+use extension::auth_jwt::PermittedType;
 
 
+type PermittedRoles = PermittedType<Context>;
 
 
 pub fn scope(cfg: &mut ServiceConfig){
@@ -11,15 +15,44 @@ pub fn scope(cfg: &mut ServiceConfig){
     
     
     .configure(template::scope)
-    .service(login)
+    .service(login_page)
+
+    // admin
+    .service(
+        web::scope("/admin")
+        .wrap(PermittedRoles::new(
+            &[Role::Admin],
+            "usr_ctx")
+        )
+        .service(manage_page)
+    )
+
+    // Worker and admin previlages
+    .service(
+        web::scope("/work")
+        .wrap(PermittedRoles::new(
+            &[Role::Admin, Role::Worker],
+            "usr_ctx")
+        )
+        .service(manage_page)
+    )
+
+    .service(
+        web::scope("/message")
+        .wrap(PermittedRoles::new(
+            &[Role::Regular, Role::Admin, Role::Worker],
+            "usr_ctx")
+        )
+        .service(manage_page)
+    )
+    
     .service(Files::new("/", "./static").index_file("home.html"))
-        
     ;
 }
 
 
 #[get("/login")]
-async fn login() -> Result<impl Responder, crate::Error> {
+async fn login_page() -> Result<impl Responder, crate::Error> {
     Ok(
         NamedFile::open("./static/login.html")
         .map_err(|e| 
@@ -28,21 +61,23 @@ async fn login() -> Result<impl Responder, crate::Error> {
     )
 }
 
-#[get("/order/{id}")]
-async fn order_product() -> impl Responder {
-    HttpResponse::NotImplemented()
-}
 
-#[get("/book/{id}")]
-async fn book_service() -> impl Responder {
-    HttpResponse::NotImplemented()
+#[get("/manage")]
+async fn manage_page(
+) -> Result<impl Responder, crate::Error> {
+    Ok(
+        NamedFile::open("./static/manage.html")
+        .map_err(|e| 
+            crate::Error::External(Cow::Owned(e.to_string()))
+        )?
+    )
 }
 
 
 mod template{
     use std::borrow::Cow;
 
-    use lib_core::template_format::{UserActionTemplate, ActionItem};
+    use lib_core::template_format::{ActionItem, ControlPage, UserActionTemplate};
 
     use actix_files::NamedFile;
     use actix_session::Session;
@@ -58,10 +93,23 @@ mod template{
                 .service(user_actions)
                 .service(login)
                 .service(signup)
+                .configure(manage_scope)
+                
         )
-
         ;
     }
+
+    pub fn manage_scope(cfg: &mut ServiceConfig){
+        cfg.service(
+            web::scope("/manage")
+                .service(product_manage_page)
+        );
+    }
+
+    #[get("/product")]
+    async fn product_manage_page() -> Result<impl Responder, crate::Error> {
+        Ok(ControlPage.to_string())
+    } 
 
     #[get("/auth/login")]
     async fn login() -> Result<impl Responder, crate::Error> {
@@ -101,8 +149,8 @@ mod template{
                 Role::Regular => {
                     let action = user_action_new!(
                         ("Search","/search"),
-                        ("My Cart","/carts"),
                         ("Message","/messages"),
+                        ("My Cart","/carts"),
                         ("Profile","/profile")
                     );
                     
@@ -111,8 +159,8 @@ mod template{
                 Role::Worker => {
                     
                     let action = user_action_new!(
-                        ("Services","/services"),
-                        ("Records","/records"),
+                        ("Schedule","/work/schedule"),
+                        ("Records","/work/records"),
                         ("Message","/messages"),
                         ("Profile","/profile"),
                     );
@@ -122,8 +170,8 @@ mod template{
                 Role::Admin => {
                     
                     let action = user_action_new!(
-                        ("Manage","/manage"),
-                        ("Records","/records"),
+                        ("Manage","/admin/manage"),
+                        ("Records","/work/records"),
                         ("Message","/messages"),
                         ("Profile","/profile")
                     );

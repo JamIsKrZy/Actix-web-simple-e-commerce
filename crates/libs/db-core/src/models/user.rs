@@ -23,7 +23,7 @@ pub struct HashedPassword;
 impl PasswordState for HashedPassword{}
 // endregion: --- States
 
-#[derive(Debug, Type, Clone, Serialize, Deserialize)]
+#[derive(Debug, Type, Clone, Serialize, Deserialize, PartialEq)]
 #[sqlx(type_name="user_role", rename_all="PascalCase")]
 pub enum Role {
     Regular,

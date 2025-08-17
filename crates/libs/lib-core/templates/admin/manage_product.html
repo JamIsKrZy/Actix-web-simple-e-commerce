@@ -1,0 +1,183 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.6/dist/htmx.min.js" integrity="sha384-Akqfrbj/HpNVo8k11SXBb6TlBWmXXlYQrCSqEWmyKJe+hDm3Z/B2WVG4smwBkRVm" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="../../../../static/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+</head>
+<body style="padding: 4rem;"> -->
+
+    <!-- Ask request upon load -->
+    <div
+        class="load-item-content"
+        hx-get="/api/admin/products/list"
+        hx-target="#item-list" 
+        hx-trigger="load"
+    >
+    </div>
+
+
+
+    <!-- Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <div class="header">
+                <h1>Create Product</h1>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <!-- <p>This is a simple pop-up modal created with HTML, CSS, and JavaScript.</p>
+            <p>You can add any content here, such as text, forms, or images.</p> -->
+
+            <form 
+                hx-post="/api/admin/products/new"
+                hx-ext="form-json"
+                hx-trigger="submit"
+                hx-swap="none"
+                hx-on::after-request="refresh_table_list(); closeModal()"
+            >
+                <div>
+                    <label for="name">Product name</label>
+                    <input type="text" name="name" id="name" placeholder="Product name">
+                </div>
+
+                <div>
+                    <label for="description">Description</label>
+                    <input type="text" name="description" id="description" placeholder="Description">
+                </div>
+
+                <div>
+                    <label for="price">Price</label><br>
+                    <input type="number" step="0.01" min="0.00" name="price" id="price" placeholder="0.00" oninput="limitDecimal(this)" style="width: 20%;">
+                </div>
+
+                <div>
+                    <label for="stock">Available Stocks</label><br>
+                    <input type="number" min="0" name="stock" placeholder="0" ="stock" id="stock" style="width: 20%;">
+                </div>
+
+                <div class="action">
+                    <button type="submit">Submit</button>
+                    <button type="button" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+
+
+    <div class="item-action">
+
+        <!-- Filter -->
+        <div>
+            <div class="filter-div">
+                <div
+                    hx-get="/api/products/list?_____"
+                    hx-target="#display-list"
+                >Active</div>
+                <div>Inactive</div>
+                <div>OutOfStock</div>
+            </div>
+        </div>
+        
+        <!-- Search Button -->
+        <div>
+            <div class="search-div">
+                <input type="text" 
+                    name="prefix"
+                    class="custom-input" 
+                    placeholder="Search..."
+                    hx-get="/api/admin/products/list" 
+                    hx-trigger="keyup[key=='Enter']" 
+                    hx-target="#item-list" 
+                    hx-include=".custom-input"
+                    >
+                <div hx-get="/api/admin/products/list?" 
+                    hx-target="#item-list" 
+                    hx-include=".custom-input" 
+                ><i class="bi bi-search"></i></div>
+            </div>
+
+            <!-- Add Button -->
+
+            <div class="add-button" onclick="openModal()">
+                <i class="bi bi-plus"></i>
+                <span>Add</span>
+            </div>
+
+        </div>
+    </div>
+
+
+    <table class="table-list">
+        <thead>
+            <tr>
+                <th style="width: 17%;">Name</th>
+                <th style="width: 5%;">Price</th>
+                <th style="width: 5%;">Stocks</th>
+                <th style="width: 10%;">Created by</th>
+                <th style="width: 10%;">Created at</th>
+                <th style="width: 10%;">Edited by</th>
+                <th style="width: 10%;">Edited at</th>
+                <th style="width: 10%;">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="item-list" id="item-list" hx-swap="innerHtml">
+            <tr>
+                <td colspan="8" >
+                    <div class="display-list" id="display-list">
+                        <div class="empty-list">
+                            <div>List is Empty</div>
+                        </div>
+                    </div>
+                </td>
+
+                <!-- Sample -->
+                 <!-- <td>Chicharon</td>
+                 <td>$7.75</td>
+                 <td>45</td>
+                 <td>James 0. Samson</td>
+                 <td>March 55, 2000</td>
+                 <td>(NULL)</td>
+                 <td>(NULL)</td>
+                 <td>
+                    <button>Edit</button>
+                    <button>Delete</button>
+                 </td> -->
+            </tr>
+            <!-- <tr>
+                <td>Crab Meat</td>
+                <td>$24.4/kilo</td>
+                <td>12</td>
+                <td>James 0. Samson</td>
+                <td>March 55, 2000</td>
+                <td>(NULL)</td>
+                <td>(NULL)</td>
+                <td>
+                    <button>Edit</button>
+                    <button>Delete</button>
+                </td>
+            </tr> -->
+        </tbody>
+    </table>
+
+    
+    <div class="space-right">
+        <div>
+            <button> <- </button>
+                <input type="number" name="" id="">
+            <button> -> </button>
+        </div>
+    </div>
+
+
+
+
+<!-- </body> -->
+
+<!-- [Active,Incative,OutOfStocks]     [Search]  [+ Add]-->
+
+
+<!-- Contains the list of products -->

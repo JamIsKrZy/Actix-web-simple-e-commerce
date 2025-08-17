@@ -1,11 +1,11 @@
 
-use chrono::{DateTime, Utc};
+use chrono::{ NaiveDateTime};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-use sqlx::{prelude::FromRow, Postgres};
+use sqlx::{prelude::FromRow,  Postgres, QueryBuilder};
 use uuid::Uuid;
 
-use crate::{models::QueryResult, utils::DbPoolExtract};
+use crate::{models::{Pagination, QueryFilterBuilder, QueryResult}, utils::DbPoolExtract};
 
 
 
@@ -15,7 +15,7 @@ use crate::{models::QueryResult, utils::DbPoolExtract};
 #[derive(Debug, Deserialize)]
 pub struct NewProduct{
     pub name: String,
-    pub description: String,
+    pub description: Option<String>,
     pub price: Decimal,
     pub stock: i32
 } 
@@ -29,19 +29,32 @@ pub struct UpdateProduct{
     pub stock: Option<i32>
 }
 
-#[derive(Debug, FromRow, Serialize)]
-pub struct ProductList{
+#[derive(Debug,FromRow, Serialize, Deserialize)]
+pub struct ForAdminProductList{
     pub id: i32,
     pub name: String,
     pub description: String,
     pub price: Decimal,
-    pub stock: i32,
-    pub created_by: Option<String>,
-    pub created_at: Option<DateTime<Utc>>,
+    pub stocks: i32,
+    pub created_by: String,
+    pub created_at: NaiveDateTime,
+
     pub edited_by: Option<String>,
-    pub edited_at: Option<DateTime<Utc>>
+    pub edited_at: Option<NaiveDateTime>
 }
 
+#[derive(Debug, Deserialize)]
+pub struct PageFilter{
+    min_price: Option<i32>,
+    max_price: Option<i32>,
+    prefix: Option<String>,
+}
+
+impl QueryFilterBuilder for PageFilter{
+    fn append_query<DB: sqlx::Database>(&self, query: &mut QueryBuilder<DB>) {
+        return;
+    }
+}
 
 
 // endregion: --- Schemas
@@ -87,11 +100,36 @@ impl Bmc{
     }
 
 
-    pub async fn get_list(
-        
-    ) -> QueryResult<()> {
+    pub async fn get_list<T: QueryFilterBuilder>(
+        page: Pagination<T>,
+        db: &impl DbPoolExtract<Postgres>
+    ) -> QueryResult<Vec<ForAdminProductList>> {
 
-        Ok(())
+        let mut query = QueryBuilder::new(
+            "SELECT 
+                p.id, 
+                p.name, 
+                p.description,
+                p.price, 
+                p.stocks, 
+                uc.username AS created_by, 
+                p.created_at, 
+                ue.username AS edited_by, 
+                p.edited_at
+            FROM products AS p
+            LEFT JOIN users AS uc ON p.created_by = uc.id
+            LEFT JOIN users AS ue ON p.edited_by = ue.id"
+        );
+
+        page.append_query(&mut query);
+
+        let list = query
+            .build_query_as::<ForAdminProductList>()
+            .fetch_all(db.pool())
+            .await
+            .map_err(|e| crate::DbError::FailedSelect { log: e.to_string() })?;
+
+        Ok(list)
     }
 
 }

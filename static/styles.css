@@ -3,9 +3,29 @@ html, body {
   padding: 0;
 }
 
+/* For Chrome, Safari, Edge */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* For Firefox */
+html {
+  scrollbar-width: none; /* Firefox */
+}
+
+/* For IE & older Edge */
+html {
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+a, a:visited {
+  text-decoration: none;
+  color: inherit;
+}
+
 .header {
   display: flex;
-  height: 4rem;
+  height: 6vh;
   justify-content: space-between; /* pushes left & right content apart */
   align-items: center; /* vertically center content */
   background-color: #333; /* dark header background */
@@ -19,11 +39,52 @@ html, body {
   flex: 3;
   text-align: left;
 }
-
 .header > div:last-child {
   font-size: 1rem;
   flex: 7; /* 70% share */
-  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+}
+.header > div:last-child > a, .header > div:last-child a:visited {
+  text-decoration: none;
+  font-weight: bolder;
+  font-size: larger;
+}
+.header > div:last-child > a .login-button, .header > div:last-child a:visited .login-button {
+  color: #333;
+  background-color: aliceblue;
+  padding: 0.7rem 1.5rem;
+  border-radius: 5px;
+}
+.header > div:last-child ul {
+  display: flex;
+  justify-content: flex-end;
+  text-align: center;
+  align-items: center;
+  margin: 0;
+  gap: 20px;
+}
+.header > div:last-child ul li {
+  list-style: none;
+  width: -moz-fit-content;
+  width: fit-content;
+}
+.header > div:last-child ul li a, .header > div:last-child ul li a:visited {
+  text-decoration: none;
+  color: inherit;
+}
+.header > div:last-child ul .nav-to {
+  color: #333;
+  background-color: aliceblue;
+  padding: 10px 1rem;
+  border-radius: 5px;
+}
+.header > div:last-child ul #profile {
+  font-size: 3rem;
+  color: white;
+  margin: 0rem 1rem 0rem 1rem;
+  height: 60px;
+  width: 60px;
 }
 
 main {
@@ -38,26 +99,36 @@ main {
 }
 
 main .announcments-container {
-  flex: 3;
+  flex: 4;
 }
-
 main .main-container {
   flex: 7;
   padding: 3rem 0;
 }
 
-.loading {
+.display-container {
+  background-color: chocolate;
+  justify-content: space-between;
+  padding: 20px 1rem;
+  width: auto;
+  margin-bottom: 1rem;
+}
+.display-container > h3 {
+  margin-top: 0;
+}
+.display-container > div {
+  border: 0.2px rgba(36, 36, 36, 0.288) solid;
+  border-radius: 4px;
+  padding: 1rem 2rem;
+}
+.display-container > div .loading {
   display: flex;
   text-align: center;
   gap: 1rem;
   align-items: center;
 }
-
-.display-container {
-  background-color: chocolate;
-  justify-content: space-between;
-  padding: 5px 10px;
-  width: auto;
+.display-container > div ul {
+  text-decoration: none;
 }
 
 .block-background {
@@ -79,4 +150,272 @@ main .main-container {
 .container {
   width: auto;
   height: 5rem;
+}
+
+.divide {
+  display: flex;
+  height: 94vh;
+}
+.divide > .selection-container {
+  background-color: rgb(255, 253, 251);
+  flex: 2;
+  min-width: 300px;
+  border-right: 1px rgba(0, 0, 0, 0.363) solid;
+}
+.divide > .selection-container > h2 {
+  font-size: xx-large;
+  padding-left: 40px;
+}
+.divide > .selection-container > ul {
+  display: flexbox;
+  padding: 0;
+}
+.divide > .selection-container > ul > li {
+  display: flex;
+  height: 8vh;
+  padding-left: 60px;
+  list-style: none;
+  font-size: larger;
+  align-items: center;
+  justify-content: ce;
+}
+.divide > .selection-container > ul > li:hover {
+  background-color: hsla(0, 0%, 10%, 0.096);
+}
+.divide > .manage-display {
+  background-color: rgb(255, 253, 251);
+  flex: 10;
+  width: auto;
+  height: auto;
+  padding: 2rem 1rem 0px 1rem;
+}
+
+.filter-div {
+  display: inline-flex;
+  border: 1px solid #464646;
+  border-radius: 5px;
+  height: 40px;
+}
+.filter-div > div {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  padding: 10px 20px;
+  border-right: 1px solid #464646; /* divider */
+}
+.filter-div > div:last-child {
+  border-right: none;
+}
+.filter-div > div:hover {
+  background-color: hsla(0, 0%, 10%, 0.096);
+}
+
+.search-div {
+  display: inline-flex;
+  border: 1px solid #464646;
+  border-radius: 5px;
+  height: 40px;
+  overflow: hidden;
+}
+.search-div > input {
+  padding: 5px 7px;
+  font-size: 16px;
+  border: none;
+  border-right: 1px solid #464646;
+  outline: none; /* removes default focus outline */
+  width: 250px;
+  border-top-left-radius: 5px; /* optional, but safer with overflow: hidden */
+  border-bottom-left-radius: 5px;
+}
+.search-div > div {
+  font-size: x-large;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0px 15px;
+}
+
+.add-button {
+  display: flex;
+  border: 1px solid #464646;
+  height: 40px;
+  width: 100px;
+  gap: 10px;
+  padding-right: 10px;
+  border-radius: 5px;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(247, 144, 48);
+}
+.add-button > i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: large;
+}
+.add-button > span {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+}
+.add-button:hover {
+  background-color: rgb(248.8976744186, 170.3302325581, 97.1023255814);
+}
+
+.item-action {
+  display: inline-flex;
+  width: 100%;
+  min-width: 800px;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.item-action > div:nth-child(2) {
+  display: inline-flex;
+  gap: 2rem;
+}
+
+.display-list {
+  width: auto;
+  padding: 1rem 1rem;
+  min-height: 40vh;
+  height: -moz-fit-content;
+  height: fit-content;
+  border-radius: 0px 0px 3px 3px;
+  min-width: 800px;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+.display-list .empty-list {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40vh;
+}
+.display-list .empty-list > div {
+  font-size: larger;
+  font-weight: bolder;
+  border: 1px solid #464646;
+  border-radius: 3px;
+  padding: 3rem 8rem;
+  background-color: rgb(242.25, 242.25, 242.25);
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal content */
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  width: 80%;
+  max-width: 500px;
+  position: relative;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.modal-content > .header {
+  display: flex;
+  background-color: white;
+  justify-content: space-between;
+  margin: 0px 0px 0rem 0px;
+  padding: 10px 0px 20px 0px;
+}
+.modal-content > .header h1 {
+  padding-left: 1rem;
+  color: #333;
+  font-size: 900;
+}
+.modal-content > .header .close {
+  position: absolute;
+  top: 15px;
+  right: 25px;
+  font-size: 28px;
+  cursor: pointer;
+  color: #333;
+}
+.modal-content form {
+  padding: 0px 2rem;
+}
+.modal-content form > div {
+  margin-bottom: 1rem;
+}
+.modal-content form > div > label {
+  font-size: medium;
+}
+.modal-content form > div > input {
+  padding-left: 5px;
+  width: 97%;
+  font-size: 24;
+  height: 27px;
+}
+.modal-content form .action {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: end;
+  gap: 1rem;
+}
+.modal-content form .action button {
+  padding: 0.5rem 1rem;
+}
+.modal-content form .action > button:nth-child(1) {
+  background-color: rgb(247, 144, 48);
+  border: 1px solid #464646;
+  border-radius: 3px;
+}
+.modal-content form .action > button:nth-child(1):hover {
+  background-color: rgb(248.8976744186, 170.3302325581, 97.1023255814);
+}
+.modal-content form .action > button:nth-child(2) {
+  background-color: white;
+  border: 1px solid #464646;
+  border-radius: 3px;
+}
+.modal-content form .action > button:nth-child(2):hover {
+  background-color: rgb(229.5, 229.5, 229.5);
+}
+
+.space-right {
+  display: flex;
+  justify-content: right;
+}
+.space-right input[type=number] {
+  width: 20px;
+  text-align: center;
+}
+.space-right input[type=number]::-webkit-outer-spin-button,
+.space-right input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.space-right input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.table-list {
+  width: 100%; /* or any fixed width */
+  border-collapse: separate;
+  border-spacing: 0; /* no extra space */
+  border: 2px solid black;
+  padding: 1rem;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+}
+.table-list th {
+  text-align: center;
+}
+.table-list th:not(:last-child), .table-list td:not(:last-child) {
+  border-right: 1px solid rgba(0, 0, 0, 0.2); /* light/transparent borders */
+  padding: 8px;
+}
+.table-list td:not(:first-child) {
+  text-align: center;
 }/*# sourceMappingURL=styles.css.map */

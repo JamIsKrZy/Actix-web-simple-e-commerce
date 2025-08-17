@@ -1,5 +1,12 @@
 <ul>
     {% for item in items %}
-        <a href="{{ item.url }}"><li>{{ item.title }}</li></a>
+    {% let id = item.title|as_id %} 
+        <li><a href="{{ item.url }}" id="{{ id }}">
+        {% match id.as_str() %}
+            {% when "profile" %} <i class="bi bi-person-circle"></i>
+            {% else %} 
+                <i class="nav-to">{{ item.title }}</i>
+        {% endmatch %}
+        </a></li>
     {% endfor %}
-<ul>
+</ul>

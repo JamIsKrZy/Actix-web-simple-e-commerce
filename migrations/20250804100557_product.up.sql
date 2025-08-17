@@ -15,9 +15,9 @@ CREATE TABLE
 
         stocks INT NOT NULL,
         created_by UUID NOT NULL,
-        create_at TIMESTAMP NOT NULL DEFAULT now(),
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
         edited_by UUID,
-        edited_at TIMESTAMP NOT NULL,
+        edited_at TIMESTAMP,
 
         PRIMARY KEY(id, name),
         FOREIGN KEY(created_by) REFERENCES users(id),
@@ -31,7 +31,7 @@ CREATE TABLE
         price NUMERIC(12,2) NOT NULL,
         status product_status NOT NULL DEFAULT 'Unavailable',
         created_by UUID NOT NULL,
-        created_at TIMESTAMP NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
         edited_by UUID,
         edited_at TIMESTAMP,
 

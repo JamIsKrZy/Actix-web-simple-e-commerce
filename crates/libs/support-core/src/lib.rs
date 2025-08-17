@@ -3,6 +3,14 @@
 pub mod password_hasher;
 pub mod jwt;
 
+// Used for interface to communicate with middleware for 
+// type validation, expecially on sceniorous where certain roles permitted
+pub trait PermissionIntance{
+    type AsPermission: PartialEq + 'static;
+    fn permission_ref(&self) -> &Self::AsPermission;
+}
+
+
 pub mod auth_jwt{
     use std::marker::PhantomData;
 

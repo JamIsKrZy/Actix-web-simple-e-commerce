@@ -1,0 +1,25 @@
+{% for product in products %}
+    <tr>
+        <td>{{ product.name }}</td>
+        <td>{{ product.price }}</td>
+        <td>{{ product.stocks}}</td>
+        <td>{{ product.created_by }}</td>
+        <td>{{ product.created_at }}</td>
+        <td>{% if let Some(field) = product.edited_by %}
+                {{ field }}
+            {% else %}
+                (null)
+            {% endif %}
+        </td>
+        <td>{% if let Some(field) = product.edited_at %}
+                {{ field }}
+            {% else %}
+                (null)
+            {% endif %}
+        </td>
+        <td>
+            <button>Edit</button>
+            <button>Delete</button>
+        </td>
+    </tr>
+{% endfor %}

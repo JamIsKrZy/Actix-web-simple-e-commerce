@@ -1,12 +1,16 @@
 use actix_web::{web::{self, ServiceConfig}, HttpResponse, Responder};
 
-use crate::define_scopes;
 
 mod service;
 mod pages;
 
 pub(in crate::handlers) type HandlerResult = Result<HttpResponse, crate::Error>;
 
+#[derive(Debug)]
+pub enum SessionErr{
+    FailedToDeserialize,
+    MissingToken
+}
 
 pub fn scope(cfg: &mut ServiceConfig){
 
@@ -17,11 +21,15 @@ pub fn scope(cfg: &mut ServiceConfig){
     ;
 }
 
+
+
+
 async fn default_route() -> impl Responder{
     HttpResponse::NotFound().body(include_str!("../../../../static/notFound.html"))
 }
 
 
+#[deprecated]
 mod macro_utils{
     #[macro_export]
     macro_rules! define_scopes {

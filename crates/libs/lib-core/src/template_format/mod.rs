@@ -1,5 +1,11 @@
 use askama::Template;
 
+
+mod manage_page;
+
+pub use manage_page::ControlPage;
+pub use manage_page::ProductList;
+
 #[macro_export]
 macro_rules! user_action_new {
     ( $(( $name:expr, $url:expr  )), * $(,)?) => {
@@ -38,3 +44,15 @@ impl ActionItem {
     }
 }
 
+
+mod filters{
+
+    pub fn as_id<T: std::fmt::Display>(
+        s: T,
+        _: &dyn askama::Values,
+    ) -> askama::Result<String> {
+        let s = s.to_string();
+        Ok(s.replace(" ", "-").to_lowercase())
+    }
+
+}

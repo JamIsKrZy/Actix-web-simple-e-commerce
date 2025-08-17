@@ -1,4 +1,6 @@
 use actix_web::web::{self, ServiceConfig};
+use db_core::{ctx::Context, Role};
+use extension::auth_jwt::PermittedType;
 
 
 mod product;
@@ -6,12 +8,42 @@ mod user;
 mod auth;
 
 
+type PermittedRoles = PermittedType<Context>;
+
 pub fn scope(cfg: &mut ServiceConfig){
     cfg.service(
         web::scope("/api")
             .configure(auth::public::scope)
 
-            
+
+            //  User Access
+            .service(
+                web::scope("/user")
+                    .wrap(PermittedRoles::new(
+                        &[Role::Regular, Role::Worker, Role::Admin], 
+                        "usr_ctx"
+                    ))
+                    .configure(product::user::scope)
+            )
+
+            //  Worker Access
+            .service(
+                web::scope("/worker")
+                    .wrap(PermittedRoles::new(
+                        &[Role::Worker, Role::Admin], 
+                        "usr_ctx"
+                    ))
+            )
+
+            //  Admin Access
+            .service(
+                web::scope("/admin")
+                    .wrap(PermittedRoles::new(
+                        &[Role::Admin], 
+                        "usr_ctx"
+                    ))
+                    .configure(product::admin::scope)
+            )
     );
 
     #[cfg(feature="dev_env")]
@@ -20,6 +52,39 @@ pub fn scope(cfg: &mut ServiceConfig){
             .configure(dev::scope)
     );
 }
+
+
+
+
+pub(in crate::handlers::service) mod util{
+    use actix_session::Session;
+    use actix_web::error::ErrorInternalServerError;
+    use serde::de::DeserializeOwned;
+
+    use crate::handlers::SessionErr;
+
+    
+
+    pub fn get_session_cookie<T>(
+        token: &impl AsRef<str>,
+        session: Session
+    ) -> Result<T, SessionErr> 
+    where 
+        T: DeserializeOwned
+    {
+        let extract_data = session.get::<T>(token.as_ref())
+            .map_err(|_| ErrorInternalServerError("Unable to Deserialize"));
+        
+        
+        match extract_data {
+            Ok(Some(ctx)) => Ok(ctx),
+            Ok(None) => Err(SessionErr::MissingToken), 
+            Err(_) => Err(SessionErr::FailedToDeserialize),
+        }
+    }
+
+}
+
 
 
 mod dev{

@@ -24,3 +24,4 @@ target
 dev.env
 makefile
 db_scheme.drawio
+dummy_qry.sql

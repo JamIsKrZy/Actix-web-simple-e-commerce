@@ -60,8 +60,9 @@ pub mod public {
         
 
         Ok(
-        HttpResponse::Created()
+        HttpResponse::Found()
             .insert_header((header::AUTHORIZATION, format!("Bearer {}", claim)))    
+            .append_header(("HX-Redirect", "/"))
             .body("User Granted!")
         )
     }
@@ -126,8 +127,9 @@ pub mod public {
         
 
         Ok(
-        HttpResponse::Created()
+            HttpResponse::Created()
             .insert_header((header::AUTHORIZATION, format!("Bearer {}", claim)))    
+            .append_header(("HX-Redirect", "/"))
             .body("User Created")
         )
     }
