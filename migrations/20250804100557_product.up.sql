@@ -2,7 +2,7 @@
 -- Add up migration script here
 
 
-CREATE TYPE product_status AS ENUM ('Unavailable','Available');
+CREATE TYPE product_status AS ENUM ('Inactive','Active');
 
 
 
@@ -11,6 +11,7 @@ CREATE TABLE
         id SERIAL UNIQUE,
         name VARCHAR(64) NOT NULL,
         description VARCHAR(128),
+        status product_status NOT NULL DEFAULT 'Inactive',
         price NUMERIC(12,2) NOT NULL,
 
         stocks INT NOT NULL,
@@ -29,7 +30,7 @@ CREATE TABLE
         id SERIAL UNIQUE NOT NULL ,
         name VARCHAR(128) NOT NULL,
         price NUMERIC(12,2) NOT NULL,
-        status product_status NOT NULL DEFAULT 'Unavailable',
+        status product_status NOT NULL DEFAULT 'Inactive',
         created_by UUID NOT NULL,
         created_at TIMESTAMP NOT NULL DEFAULT now(),
         edited_by UUID,

@@ -2,7 +2,7 @@ use actix_web::web::{self, ServiceConfig};
 use db_core::{ctx::Context, Role};
 use extension::auth_jwt::PermittedType;
 
-
+mod bundle;
 mod product;
 mod user;
 mod auth;
@@ -43,6 +43,7 @@ pub fn scope(cfg: &mut ServiceConfig){
                         "usr_ctx"
                     ))
                     .configure(product::admin::scope)
+                    .configure(bundle::admin::scope)
             )
     );
 
@@ -54,36 +55,9 @@ pub fn scope(cfg: &mut ServiceConfig){
 }
 
 
+/// Applied on service that requires no wrap, and middleware 
 
 
-pub(in crate::handlers::service) mod util{
-    use actix_session::Session;
-    use actix_web::error::ErrorInternalServerError;
-    use serde::de::DeserializeOwned;
-
-    use crate::handlers::SessionErr;
-
-    
-
-    pub fn get_session_cookie<T>(
-        token: &impl AsRef<str>,
-        session: Session
-    ) -> Result<T, SessionErr> 
-    where 
-        T: DeserializeOwned
-    {
-        let extract_data = session.get::<T>(token.as_ref())
-            .map_err(|_| ErrorInternalServerError("Unable to Deserialize"));
-        
-        
-        match extract_data {
-            Ok(Some(ctx)) => Ok(ctx),
-            Ok(None) => Err(SessionErr::MissingToken), 
-            Err(_) => Err(SessionErr::FailedToDeserialize),
-        }
-    }
-
-}
 
 
 
@@ -97,6 +71,7 @@ mod dev{
 
     use crate::handlers::HandlerResult;
 
+    #[allow(unused)]
     pub fn scope(cfg: &mut ServiceConfig){
         cfg.service(check)
             .service(debug_payload)
@@ -146,7 +121,7 @@ mod dev{
         user_info: web::Json<AddUser<RawPassword>>,
         md: web::Data<PostgressDbManager>,
         pass_hash: web::Data<AppPasswordHasher>,
-    ) -> HandlerResult {
+    ) -> HandlerResult<HttpResponse> {
         
         let hasher = pass_hash.into_inner();
         let hashed_user = user_info.into_inner()

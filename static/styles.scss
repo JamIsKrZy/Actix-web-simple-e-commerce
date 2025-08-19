@@ -569,5 +569,34 @@ main{
         text-align: center;
     }
 
+    // utilized in bundles pages to 
+    // display items of a bundle
+    .item-pop-up{
+        padding: 10px;
+        background-color: #000000;
+        border-radius: 2px;
+        width: auto;
+    }
+
+
+    @mixin status_bubble($color){
+        background-color: $color;
+        border-radius: 2px;
+        color: beige;
+        font-weight: 500;
+        padding: 10px 10px;
+        width: fit-content;
+        margin: 0 auto;
+    }
+
+    .status-red{
+        @include status_bubble(rgb(211, 78, 78))
+        
+    }
+
+    .status-green{
+        @include status_bubble(rgb(131, 211, 78))
+    }
+
     
 }

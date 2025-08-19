@@ -1,7 +1,14 @@
 {% for product in products %}
     <tr data-id="{{ product.id }}">
         <td>{{ product.name }}</td>
-        <td>{{ product.price }}</td>
+        <td>{% match product.status %}
+                {% when ProductStatus::Active %}
+                    <div class="status-green">Active</div>
+                {% when ProductStatus::Inactive %}
+                    <div class="status-red">Inactive</div>
+            {% endmatch %}
+        </td>
+	<td>₱{{ product.price }}</td>
         <td>{{ product.stocks}}</td>
         <td>{{ product.created_by }}</td>
         <td>{{ product.created_at }}</td>

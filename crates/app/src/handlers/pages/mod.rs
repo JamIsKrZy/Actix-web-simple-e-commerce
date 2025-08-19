@@ -7,6 +7,9 @@ use db_core::{ctx::Context, Role};
 use extension::auth_jwt::PermittedType;
 
 
+mod manage_page;
+
+
 type PermittedRoles = PermittedType<Context>;
 
 
@@ -24,7 +27,7 @@ pub fn scope(cfg: &mut ServiceConfig){
             &[Role::Admin],
             "usr_ctx")
         )
-        .service(manage_page)
+        .configure(manage_page::scope)
     )
 
     // Worker and admin previlages
@@ -34,7 +37,7 @@ pub fn scope(cfg: &mut ServiceConfig){
             &[Role::Admin, Role::Worker],
             "usr_ctx")
         )
-        .service(manage_page)
+        
     )
 
     .service(
@@ -43,7 +46,7 @@ pub fn scope(cfg: &mut ServiceConfig){
             &[Role::Regular, Role::Admin, Role::Worker],
             "usr_ctx")
         )
-        .service(manage_page)
+        
     )
     
     .service(Files::new("/", "./static").index_file("home.html"))
@@ -62,22 +65,12 @@ async fn login_page() -> Result<impl Responder, crate::Error> {
 }
 
 
-#[get("/manage")]
-async fn manage_page(
-) -> Result<impl Responder, crate::Error> {
-    Ok(
-        NamedFile::open("./static/manage.html")
-        .map_err(|e| 
-            crate::Error::External(Cow::Owned(e.to_string()))
-        )?
-    )
-}
 
 
 mod template{
     use std::borrow::Cow;
 
-    use lib_core::template_format::{ActionItem, ControlPage, UserActionTemplate};
+    use lib_core::template_format::{ActionItem, ProductPage, UserActionTemplate};
 
     use actix_files::NamedFile;
     use actix_session::Session;
@@ -93,23 +86,11 @@ mod template{
                 .service(user_actions)
                 .service(login)
                 .service(signup)
-                .configure(manage_scope)
                 
         )
         ;
     }
 
-    pub fn manage_scope(cfg: &mut ServiceConfig){
-        cfg.service(
-            web::scope("/manage")
-                .service(product_manage_page)
-        );
-    }
-
-    #[get("/product")]
-    async fn product_manage_page() -> Result<impl Responder, crate::Error> {
-        Ok(ControlPage.to_string())
-    } 
 
     #[get("/auth/login")]
     async fn login() -> Result<impl Responder, crate::Error> {

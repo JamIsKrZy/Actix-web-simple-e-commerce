@@ -476,4 +476,30 @@ main .main-container {
 }
 .table-list td:not(:first-child) {
   text-align: center;
+}
+.table-list .item-pop-up {
+  padding: 10px;
+  background-color: #000000;
+  border-radius: 2px;
+  width: auto;
+}
+.table-list .status-red {
+  background-color: rgb(211, 78, 78);
+  border-radius: 2px;
+  color: beige;
+  font-weight: 500;
+  padding: 10px 10px;
+  width: -moz-fit-content;
+  width: fit-content;
+  margin: 0 auto;
+}
+.table-list .status-green {
+  background-color: rgb(131, 211, 78);
+  border-radius: 2px;
+  color: beige;
+  font-weight: 500;
+  padding: 10px 10px;
+  width: -moz-fit-content;
+  width: fit-content;
+  margin: 0 auto;
 }/*# sourceMappingURL=styles.css.map */

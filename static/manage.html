@@ -13,7 +13,7 @@
 <body style="overflow: hidden;">
     
     <div 
-        hx-get="/template/manage/product" 
+        hx-get="/admin/manage/page/products" 
         hx-trigger="load" 
         hx-target="#display"
     ></div>
@@ -38,26 +38,26 @@
         <div class="selection-container">
             <h2>Manage</h2>
             <ul>
-                <li hx-get="/template/manage/product" hx-target="#display">
+                <li hx-get="/template/manage/page/products" hx-target="#display">
                     <a href="#" style="display:block;">Products</a>
                 </li>
                 <li
-                    hx-get="/template/manage/bundles"
+                    hx-get="/admin/manage/page/bundles"
                     hx-target="#display"
                     style="cursor: pointer;"
                 >Bundles</li>
                 <li
-                    hx-get="/template/manage/services"
+                    hx-get="/admin/manage/page/services"
                     hx-target="#display"
                     style="cursor: pointer;"
                 >Services</li>
                 <li
-                    hx-get="/template/manage/users"
+                    hx-get="/template/manage/page/users"
                     hx-target="#display"
                     style="cursor: pointer;"
                 >Users</li>
                 <li
-                    hx-get="/template/manage/shop"
+                    hx-get="/template/manage/page/shop"
                     hx-target="#display"
                     style="cursor: pointer;"
                 >Shop</li>

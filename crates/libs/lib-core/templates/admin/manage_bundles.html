@@ -1,4 +1,4 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="../../../../../static/styles.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
 </head>
-<body style="padding: 4rem;"> -->
+<body style="padding: 4rem;">
 
     <!-- Ask request upon load -->
     <div
@@ -19,9 +19,6 @@
         hx-trigger="load"
     >
     </div>
-
-
-
 
 
     <!-- Modal for Creating -->
@@ -71,7 +68,7 @@
 
 
     <!-- Modal for Deletion -->
-     <div id="delete-modal" class="modal" >
+     <div id="delete-modal" class="modal">
         <div class="modal-content">
             <div class="header">
                 <h1>Delete Product</h1>
@@ -136,10 +133,10 @@
     <table class="table-list">
         <thead>
             <tr >
-                <th style="width: 17%;">Name</th>
-                <th style="width: 5%;">Status</th>
+                <th style="width: 13%;">Name</th>
+		        <th style="width: 5%;">Status</th>
+		        <th style="width: 10%;">Items</th>
                 <th style="width: 5%;">Price</th>
-                <th style="width: 5%;">Stocks</th>
                 <th style="width: 10%;">Created by</th>
                 <th style="width: 10%;">Created at</th>
                 <th style="width: 10%;">Edited by</th>
@@ -158,32 +155,31 @@
                 </td> -->
 
                 <!-- Sample -->
-                 <td>Chicharon</td>
-                 <td><div class="status-red">Inactive</div></td>
-                 <td>$7.75</td>
-                 <td>45</td>
-                 <td>James 0. Samson</td>
-                 <td>March 55, 2000</td>
-                 <td>(NULL)</td>
-                 <td>(NULL)</td>
-                 <td>
-                    <button>Edit</button>
-                    <button>Delete</button>
-                 </td>
-            </tr>
-            <!-- <tr data-id="123345">
-                <td>Crab Meat</td>
-                <td>$24.4/kilo</td>
-                <td>12</td>
+                <td>Chicharon</td>
+                <td> <div class="status-green">Active</div></td>
+                <td><div class="item-pop-up"></div></td>
+                <td>45.00</td>
                 <td>James 0. Samson</td>
                 <td>March 55, 2000</td>
                 <td>(NULL)</td>
                 <td>(NULL)</td>
                 <td>
                     <button>Edit</button>
-                    <button onclick="openDeleteModal(this)">Delete</button>
+                    <button>Delete</button>
                 </td>
-            </tr> -->
+            </tr>
+                <td>Chicharon</td>
+                <td><div class="item-pop-up"></div></td>
+                <td>45.00</td>
+                <td><div class="status-red">Inactive</div></td>
+                <td>James 0. Samson</td>
+                <td>March 55, 2000</td>
+                <td>(NULL)</td>
+                <td>(NULL)</td>
+                <td>
+                    <button>Edit</button>
+                    <button>Delete</button>
+                </td>
         </tbody>
     </table>
 
@@ -199,7 +195,7 @@
 
 
 
-<!-- </body> -->
+</body>
 
 <!-- [Active,Incative,OutOfStocks]     [Search]  [+ Add]-->
 

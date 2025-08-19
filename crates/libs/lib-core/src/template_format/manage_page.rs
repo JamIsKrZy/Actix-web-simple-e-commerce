@@ -1,11 +1,22 @@
 use askama::Template;
-use db_core::models::product::ForAdminProductList;
-
+use db_core::models::product::{ForAdminProductList, ProductStatus};
 
 
 #[derive(Debug, Template)]
+#[template(path="admin/empty_table.html")]
+pub struct EmptyListTable{
+    span_size: usize
+}
+
+impl EmptyListTable {
+    pub fn new_with_size(span_size: usize) -> Self {
+        Self { span_size }
+    }
+}
+
+#[derive(Debug, Template)]
 #[template(path="admin/manage_product.html")]
-pub struct ControlPage;
+pub struct ProductPage;
 
 #[derive(Debug, Template)]
 #[template(path="admin/product_list.html")]

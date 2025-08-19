@@ -29,7 +29,7 @@ pub mod public {
         db: web::Data<PostgressDbManager>,
         jwt: web::Data<JwtHandler>,
         session: Session
-    ) -> HandlerResult{
+    ) -> HandlerResult<HttpResponse>{
 
         let username = info.username.as_str();
         let dm = db.get_ref();
@@ -94,7 +94,7 @@ pub mod public {
         db: web::Data<PostgressDbManager>,
         jwt: web::Data<JwtHandler>,
         session: Session
-    ) -> HandlerResult{
+    ) -> HandlerResult<HttpResponse>{
 
         
 

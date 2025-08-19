@@ -2,12 +2,22 @@
 use chrono::{ NaiveDateTime};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-use sqlx::{prelude::FromRow,  Postgres, QueryBuilder};
+use sqlx::{prelude::{FromRow, Type},  Postgres, QueryBuilder};
 use uuid::Uuid;
 
 use crate::{models::{Pagination, QueryFilterBuilder, QueryResult}, utils::DbPoolExtract};
 
 
+// region:    --- Enum type
+
+#[derive(Debug, Type, Clone, Serialize, Deserialize, PartialEq)]
+#[sqlx(type_name="product_status", rename_all="PascalCase")]
+pub enum ProductStatus{
+    Active,
+    Inactive
+}
+
+// endregion: --- Enum type
 
 
 // region:    --- Schemas
@@ -33,6 +43,7 @@ pub struct UpdateProduct{
 pub struct ForAdminProductList{
     pub id: i32,
     pub name: String,
+    pub status: ProductStatus,
     pub description: String,
     pub price: Decimal,
     pub stocks: i32,
@@ -99,6 +110,23 @@ impl Bmc{
 
     }
 
+    pub async fn delete_one(
+        id: i32,
+        db: &impl DbPoolExtract<Postgres>
+    ) -> QueryResult<()>{
+        
+        let _ = sqlx::query!("
+            DELETE FROM products
+            WHERE id = $1",
+            id
+        )
+        .execute(db.pool())
+        .await
+        .map_err(|e| crate::DbError::FailedDelete { log: e.to_string() })?;
+        
+        Ok(())
+
+    }
 
     pub async fn get_list<T: QueryFilterBuilder>(
         page: Pagination<T>,
@@ -108,7 +136,8 @@ impl Bmc{
         let mut query = QueryBuilder::new(
             "SELECT 
                 p.id, 
-                p.name, 
+                p.name,
+                p.status,
                 p.description,
                 p.price, 
                 p.stocks, 

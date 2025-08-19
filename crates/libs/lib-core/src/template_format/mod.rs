@@ -3,8 +3,9 @@ use askama::Template;
 
 mod manage_page;
 
-pub use manage_page::ControlPage;
+pub use manage_page::ProductPage;
 pub use manage_page::ProductList;
+pub use manage_page::EmptyListTable;
 
 #[macro_export]
 macro_rules! user_action_new {

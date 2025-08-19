@@ -36,7 +36,7 @@ function openDeleteModal(button) {
 }
 
 function request_delete(what, id){
-    fetch(`/api/admin/${what}/${id}`, {
+    fetch(`/api/admin/${what}/delete/${id}`, {
         method: 'DELETE', // Specify DELETE
         headers: {
             'Content-Type': 'application/json', // Optional: depends on backend

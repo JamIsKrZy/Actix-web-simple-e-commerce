@@ -4,7 +4,7 @@ use actix_web::{web::{self, ServiceConfig}, HttpResponse, Responder};
 mod service;
 mod pages;
 
-pub(in crate::handlers) type HandlerResult = Result<HttpResponse, crate::Error>;
+pub(in crate::handlers) type HandlerResult<T: Responder> = Result<T, crate::Error>;
 
 #[derive(Debug)]
 pub enum SessionErr{
@@ -28,6 +28,31 @@ async fn default_route() -> impl Responder{
     HttpResponse::NotFound().body(include_str!("../../../../static/notFound.html"))
 }
 
+
+#[macro_export]
+macro_rules! bind_scope_handlers {
+    ($scope:literal, $( $handler: expr ),+) => {
+        web::scope( $scope )
+            $(
+                .service( $handler )
+            )+
+    };
+    ( $cfg:expr, $scope:literal, $( $handler: expr ),+) => {
+        $cfg.service(
+            web::scope( $scope )
+            $(
+                .service( $handler )
+            )+
+        )
+    };
+}
+
+#[macro_export]
+macro_rules! bind_handlers {
+    ($cfg:expr, $( $handler: expr ),+) => {
+        $cfg$(.service( $handler ))+
+    };
+}
 
 #[deprecated]
 mod macro_utils{
