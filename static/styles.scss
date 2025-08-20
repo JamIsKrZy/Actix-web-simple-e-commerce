@@ -522,9 +522,14 @@ main{
 }
 
 
-.space-right{
+.pager{
     display: flex;
     justify-content: right;
+
+    > div{
+        display: flex;
+        gap: 0;
+    }
 
     input[type=number] {
         width: 20px;
@@ -544,16 +549,20 @@ main{
 
 }
 
-.table-list{
-    // border-collapse: collapse;
-    width: 100%;            /* or any fixed width */ 
-    border-collapse: separate;
-    border-spacing: 0; /* no extra space */
-    border: 2px solid black; 
-    padding: 1rem;
+.table-container{
+    max-height: 70vh;   /* limit height */
+    overflow-y: auto;   /* vertical scrolling */
+    border: 2px solid black;
     border-radius: 5px;
-
+    padding: 1rem;
     margin-bottom: 1rem;
+}
+
+.table-list{
+
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
 
     th {
         text-align: center;

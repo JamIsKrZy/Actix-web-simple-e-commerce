@@ -5,17 +5,11 @@ use serde::{Deserialize, Serialize};
 use sqlx::{prelude::{FromRow, Type},  Postgres, QueryBuilder};
 use uuid::Uuid;
 
-use crate::{models::{Pagination, QueryFilterBuilder, QueryResult}, utils::DbPoolExtract};
+use crate::{models::{Pagination, ProductStatus, QueryFilterBuilder, QueryResult}, utils::DbPoolExtract};
 
 
 // region:    --- Enum type
 
-#[derive(Debug, Type, Clone, Serialize, Deserialize, PartialEq)]
-#[sqlx(type_name="product_status", rename_all="PascalCase")]
-pub enum ProductStatus{
-    Active,
-    Inactive
-}
 
 // endregion: --- Enum type
 
@@ -76,7 +70,7 @@ pub struct Bmc;
 
 impl Bmc{
 
-    pub async fn insert_one(
+    pub async fn new_product(
         product: NewProduct,
         who: impl AsRef<Uuid>,
         db: &impl DbPoolExtract<Postgres> 
@@ -128,7 +122,7 @@ impl Bmc{
 
     }
 
-    pub async fn get_list<T: QueryFilterBuilder>(
+    pub async fn get_full_list<T: QueryFilterBuilder>(
         page: Pagination<T>,
         db: &impl DbPoolExtract<Postgres>
     ) -> QueryResult<Vec<ForAdminProductList>> {

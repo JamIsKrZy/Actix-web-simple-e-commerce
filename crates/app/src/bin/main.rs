@@ -1,6 +1,6 @@
 use actix_web::{middleware::Logger, web, App, HttpServer};
 
-use app::{config::config, handlers};
+use app::{config, handlers};
 use db_core::PostgressDbManager;
 use env_logger::Env;
 
@@ -9,42 +9,16 @@ use lib_core::{AppPasswordHasher, JwtHandler};
 
 
 
-
-
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
 
-    env_logger::init_from_env(Env::default().default_filter_or("debug"));
 
-    
+    config::config_envrironment();
 
-    #[cfg(feature = "dev_env")]
-    {
-        
-        println!("🛠️ Setting Dev Environement...");
-        dotenvy::from_filename_override("dev.env").expect("Unable to locate dev environment");
-    }
+    let (dm, jwt_handler) = config::app_data_resource().await;
 
-    // Setting Db
-    let dm = web::Data::new(
-        if cfg!(feature = "dev_env") {
-            PostgressDbManager::init_test_connection().await
-        } else {
-            PostgressDbManager::new(10).await
-        }
-    );
-
-    let jwt_handler = web::Data::new(
-        if cfg!(feature = "dev_env") {
-            JwtHandler::default()
-        } else {
-            JwtHandler::new()
-        }
-    );
-
-
-
-    let config = config();
+    let tls = config::load_rustls();
+    let config = config::config();
     let app_pass_hash =  web::Data::new(AppPasswordHasher::default());
     let key = config.session_key();
     
@@ -62,7 +36,7 @@ async fn main() -> std::io::Result<()> {
             .configure(handlers::scope)
             
     })
-    .bind(config.bind_addr())?
+    .bind_rustls_0_23(config.address(), tls)?
     .workers(config.workers)
     .run()
     .await

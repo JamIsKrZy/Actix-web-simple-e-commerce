@@ -1,4 +1,6 @@
-use sqlx::{postgres::PgPoolOptions, PgPool, Pool, Postgres};
+use std::pin::Pin;
+
+use sqlx::{postgres::PgPoolOptions, PgPool, Pool, Postgres, Transaction};
 
 use crate::utils::DbPoolExtract;
 
@@ -64,6 +66,10 @@ impl From<PgPool> for PostgressDbManager{
 impl DbPoolExtract<Postgres> for PostgressDbManager{
     fn pool(&self) -> &Pool<Postgres> {
         &self.pool
+    }
+    
+    fn transaction(&self) -> Pin<Box<impl Future< Output = Result<Transaction<'static, Postgres>, sqlx::Error>>>> {
+        Box::pin(self.pool.begin())
     }
 }
 

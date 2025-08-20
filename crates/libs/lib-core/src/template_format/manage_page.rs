@@ -1,7 +1,13 @@
 use askama::Template;
-use db_core::models::product::{ForAdminProductList, ProductStatus};
+use db_core::models::product::{ForAdminProductList};
+use db_core::models::ProductStatus;
 
 
+
+/// Contains template for empty containers
+/// 
+/// For empty list
+/// 
 #[derive(Debug, Template)]
 #[template(path="admin/empty_table.html")]
 pub struct EmptyListTable{
@@ -14,10 +20,23 @@ impl EmptyListTable {
     }
 }
 
+
+// region:    --- Product Page
+
+
+/// Page containing the product page 
+/// 
+/// See also, BundlePage, ServicePage, UserPage, ShopPage
+/// 
 #[derive(Debug, Template)]
 #[template(path="admin/manage_product.html")]
 pub struct ProductPage;
 
+
+/// For product page, formating collected data to table rows
+/// 
+/// 
+/// 
 #[derive(Debug, Template)]
 #[template(path="admin/product_list.html")]
 pub struct ProductList{
@@ -29,3 +48,10 @@ impl From<Vec<ForAdminProductList>> for ProductList{
         Self { products: value }
     }
 }
+
+// endregion: --- Product Page
+
+
+
+
+

@@ -1,7 +1,7 @@
 
 
-use serde::{Deserialize};
-use sqlx::{Database, Postgres, QueryBuilder};
+use serde::{Deserialize, Serialize};
+use sqlx::{prelude::Type, Database, Postgres, QueryBuilder};
 
 
 pub mod user;
@@ -10,6 +10,31 @@ pub mod bundles;
 
 
 pub(in crate::models) type QueryResult<T> = Result<T, crate::DbError>;
+
+
+// region:    --- Shared Types
+
+const BIND_LIMIT: usize = 65535;
+
+
+#[derive(Debug, Type, Clone, Serialize, Deserialize, PartialEq)]
+#[sqlx(type_name="product_status", rename_all="PascalCase")]
+pub enum ProductStatus{
+    Active,
+    Inactive
+}
+
+impl Default for ProductStatus{
+    fn default() -> Self {
+        Self::Inactive
+    }
+}
+
+
+// endregion: --- Shared Types
+
+
+
 
 pub trait QueryFilterBuilder{
     fn append_query<DB: Database>(&self, query: &mut QueryBuilder<DB>);

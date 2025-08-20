@@ -81,7 +81,7 @@ pub mod admin {
         
         let product = info.into_inner();
         let db = db.as_ref();
-        let _ = product::Bmc::insert_one(product, usr_ctx.id, db)
+        let _ = product::Bmc::new_product(product, usr_ctx.id, db)
             .await?;
 
 
@@ -115,7 +115,7 @@ pub mod admin {
         let list = {
             let db = db.get_ref();
             let page = page.into_inner();
-            product::Bmc::get_list(page, db).await?
+            product::Bmc::get_full_list(page, db).await?
         };
 
         if list.is_empty() {

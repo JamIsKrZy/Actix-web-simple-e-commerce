@@ -9,7 +9,7 @@ CREATE TYPE product_status AS ENUM ('Inactive','Active');
 CREATE TABLE
     IF NOT EXISTS products (
         id SERIAL UNIQUE,
-        name VARCHAR(64) NOT NULL,
+        name VARCHAR(64) NOT NULL UNIQUE,
         description VARCHAR(128),
         status product_status NOT NULL DEFAULT 'Inactive',
         price NUMERIC(12,2) NOT NULL,

@@ -7,5 +7,7 @@ pub enum DbError{
     FailedDelete{log: String},
     FailedPatch {log: String},
 
+    InitTransactionErr,
+    TransactionCommitErr,
     External()
 }
