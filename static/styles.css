@@ -308,8 +308,19 @@ main .main-container {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   justify-content: center;
-  align-items: center;
+  align-items: flex-start; /* start from top, not center */
+  overflow-y: auto; /* scroll the whole modal */
+  padding: 40px 20px; /* top/bottom spacing */
+  box-sizing: border-box;
   z-index: 1000;
+}
+
+.align-center {
+  align-items: center; /* start from top, not center */
+}
+
+.flex-start {
+  align-items: flex-start; /* start from top, not center */
 }
 
 /* Modal content */
@@ -321,6 +332,8 @@ main .main-container {
   max-width: 500px;
   position: relative;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  /* Let it grow naturally */
+  box-sizing: border-box;
 }
 .modal-content > .header {
   display: flex;
@@ -439,6 +452,43 @@ main .main-container {
   width: 97%;
   font-size: 24;
   height: 27px;
+}
+.modal-content > form > div > select {
+  padding-left: 5px;
+  width: 100%;
+  font-size: 24;
+  height: 27px;
+}
+.modal-content > form > div > .item-row {
+  display: flex;
+  gap: 20px;
+  width: auto;
+  align-items: center;
+  margin-bottom: 1vh;
+}
+.modal-content > form > div > .item-row input {
+  padding-left: 5px;
+  font-size: 24;
+  height: 27px;
+}
+.modal-content > form > div > .item-row input[type=number] {
+  width: 50%;
+}
+.modal-content > form > div > .item-row button {
+  font-size: 24;
+  height: 27px;
+}
+.modal-content > form > div > .item-row:last-child {
+  margin-bottom: 0.3vh;
+}
+.modal-content > form > div > .item-row:last-child .close-itme {
+  cursor: pointer;
+}
+.modal-content > form .add-list-button {
+  margin-bottom: 1rem;
+}
+.modal-content > form .item-list-div {
+  margin-bottom: 10px;
 }
 
 .manage-title {

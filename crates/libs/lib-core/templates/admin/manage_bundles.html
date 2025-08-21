@@ -22,45 +22,81 @@
 
 
     <!-- Modal for Creating -->
-    <div id="create-modal" class="modal">
+    <div id="create-modal" class="modal" style="display: flex;">
         <div class="modal-content">
             <div class="header">
                 <h1>Create Product</h1>
                 <span class="close" onclick="closeCreateModal()">&times;</span>
             </div>
+            <!-- hx-target="#response" -->
+            <!-- hx-on::after-request="if(event.target === this){ refresh_table_list(); closeCreateModal(); }" -->
 
             <form 
-                hx-post="/api/admin/products/new"
-                hx-ext="form-json"
-                hx-trigger="submit"
-                hx-swap="none"
-                hx-on::after-request="refresh_table_list(); closeCreateModal()"
-            >
-                <div>
-                    <label for="name">Product name</label>
-                    <input type="text" name="name" id="name" placeholder="Product name">
-                </div>
+    hx-ext="form-json"
+    hx-trigger="submit"
+    hx-post="/dev/debug"
+>   
+    <div>
+        <label for="name">Product name</label>
+        <input type="text" name="name" id="name" placeholder="Product name">
+    </div>
 
-                <div>
-                    <label for="description">Description</label>
-                    <input type="text" name="description" id="description" placeholder="Description">
-                </div>
+    <div class="item-list-div">  
+        <label>Items</label>
+        <div class="item-row" id="0">
 
-                <div>
-                    <label for="price">Price</label><br>
-                    <input type="number" step="0.01" min="0.00" name="price" id="price" placeholder="0.00" oninput="limitDecimal(this)" style="width: 20%;">
-                </div>
+            <!-- Search item -->
+            <div>
+                <input 
+                    type="text" 
+                    placeholder="Search Product..."
+                    hx-get=""
+                    hx-target="#item-search-result-0"
+                    hx-swap="innerHTML"
+                    hx-vals="js:{prefix: this.value}"
+                    hx-trigger="input changed delay:500ms"
+                    hx-on:afterRequest="console.log('None')"
+                >
+                <input type="hidden" name="list[0][id]" id="item-id" required>
+                <div id="item-search-result-0"></div>
+            </div>
+            
+            <!-- Quantity -->
+            <input type="number" name="list[0][quantity]" required value="0">
+        </div>                
+    </div>
 
-                <div>
-                    <label for="stock">Available Stocks</label><br>
-                    <input type="number" min="0" name="stock" placeholder="0" ="stock" id="stock" style="width: 20%;">
-                </div>
+    <button class="add-list-button" type="button" onclick="addItemModal(this.previousElementSibling)">Add Item</button>
 
-                <div class="confirm-action">
-                    <button type="submit">Submit</button>
-                    <button type="button" onclick="closeCreateModal()">Cancel</button>
-                </div>
-            </form>
+    <div class="form-group">
+        <label for="status">Status:</label>
+        <select id="status" name="status" required>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+        </select>
+    </div>
+    
+    <div>
+        <label for="description">Description</label>
+        <input type="text" name="description" id="description" placeholder="Description">
+    </div>
+
+    <div>
+        <label for="price">Price</label><br>
+        <input type="number" step="0.01" min="0.00" name="price" id="price" placeholder="0.00" oninput="limitDecimal(this)" style="width: 20%;">
+    </div>
+
+    <div>
+        <label for="stock">Available Stocks</label><br>
+        <input type="number" min="0" name="stock" placeholder="0" id="stock" style="width: 20%;">
+    </div>
+
+    <div class="confirm-action">
+        <button type="submit">Submit</button>
+        <button type="button" onclick="closeCreateModal()">Cancel</button>
+    </div>
+</form>
+
             
         </div>
     </div>
@@ -68,7 +104,7 @@
 
 
     <!-- Modal for Deletion -->
-     <div id="delete-modal" class="modal">
+     <div id="delete-modal" class="modal" style="cursor: pointer;">
         <div class="modal-content">
             <div class="header">
                 <h1>Delete Product</h1>
@@ -226,11 +262,163 @@
     </div>
 
 
+    
+    <script>
+        let itemCount = 1;
 
+        function addItem() {
+            const container = document.getElementById('items-container');
+            const newRow = document.createElement('div');
+            newRow.className = 'item-row';
+            newRow.id = `item-row-${itemCount}`;
+            newRow.innerHTML = `
+                <div class="search-container">
+                    <input type="text" 
+                           class="search-input" 
+                           placeholder="Search items..." 
+                           oninput="searchItems(${itemCount}, this.value)"
+                           hx-get="/api/list"
+                           hx-trigger="input changed delay:300ms"
+                           hx-target="#search-results-${itemCount}"
+                           hx-swap="innerHtml"
+                           hx-vals='js:{prefix: this.value}'>
+                    <input type="hidden" name="list[${itemCount}][id]" class="item-id" required>
+                    <div id="search-results-${itemCount}" class="search-results"></div>
+                </div>
+                <input type="number" name="list[${itemCount}][quantity]" placeholder="Quantity" min="1" required>
+                <button type="button" class="remove-btn" onclick="removeItem(${itemCount})">X</button>
+            `;
+            container.appendChild(newRow);
+            itemCount++;
+        }
+
+        function removeItem(index) {
+            const row = document.getElementById(`item-row-${index}`);
+            if (itemCount > 1) {
+                row.remove();
+                const rows = document.querySelectorAll('.item-row');
+                rows.forEach((row, i) => {
+                    row.id = `item-row-${i}`;
+                    row.querySelector('.item-id').name = `list[${i}][id]`;
+                    row.querySelector('input[type="number"]').name = `list[${i}][quantity]`;
+                    row.querySelector('button').setAttribute('onclick', `removeItem(${i})`);
+                    row.querySelector('.search-input').setAttribute('oninput', `searchItems(${i}, this.value)`);
+                    row.querySelector('.search-results').id = `search-results-${i}`;
+                    row.querySelector('.search-input').setAttribute('hx-target', `#search-results-${i}`);
+                });
+                itemCount--;
+            }
+        }
+
+        function searchItems(index, value) {
+            const resultsDiv = document.getElementById(`search-results-${index}`);
+            if (value.trim() === '') {
+                resultsDiv.style.display = 'none';
+                resultsDiv.innerHTML = '';
+                document.querySelector(`#item-row-${index} .item-id`).value = '';
+                return;
+            }
+            resultsDiv.style.display = 'block';
+        }
+
+        // Handle item selection from search results
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('search-option')) {
+                const index = event.target.dataset.index;
+                const id = event.target.dataset.id;
+                const name = event.target.textContent;
+                const row = document.getElementById(`item-row-${index}`);
+                row.querySelector('.search-input').value = name;
+                row.querySelector('.item-id').value = id;
+                row.querySelector('.search-results').style.display = 'none';
+            }
+        });
+
+        // Close search results when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.search-container')) {
+                document.querySelectorAll('.search-results').forEach(div => {
+                    div.style.display = 'none';
+                });
+            }
+        });
+
+        // Update list select options (unchanged)
+        document.body.addEventListener('htmx:afterSwap', function(event) {
+            if (event.detail.target.id === 'list-options') {
+                const select = document.getElementById('list-select');
+                select.innerHTML = event.detail.target.innerHTML;
+            }
+        });
+    </script>
+
+
+    <!-- <style>
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        select, input[type="number"], input[type="text"], button {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .item-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .item-row select, .item-row input {
+            flex: 1;
+        }
+        .remove-btn {
+            background-color: #f44336;
+            flex: 0 0 40px;
+        }
+        .remove-btn:hover {
+            background-color: #d32f2f;
+        }
+        #items-container {
+            margin-bottom: 15px;
+        }
+        .search-container {
+            position: relative;
+        }
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            z-index: 10;
+            display: none;
+        }
+        .search-results option {
+            padding: 8px;
+            cursor: pointer;
+        }
+        .search-results option:hover {
+            background-color: #f0f0f0;
+        }
+    </style> -->
 
 </body>
 
-<!-- [Active,Incative,OutOfStocks]     [Search]  [+ Add]-->
-
-
-<!-- Contains the list of products -->

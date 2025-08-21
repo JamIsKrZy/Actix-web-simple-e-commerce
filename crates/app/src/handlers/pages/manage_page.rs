@@ -2,7 +2,7 @@ use std::{borrow::Cow, sync::OnceLock};
 
 use actix_files::NamedFile;
 use actix_web::{get, web::{self, ServiceConfig}};
-use lib_core::template_format::{ManageMetaData, ManageTemplate, ProductPage};
+use lib_core::template_format::manage_page::{FormModalInput, ManageMetaData, ManageTemplate, ProductPage};
 
 use crate::{bind_handlers, bind_scope_handlers, handlers::HandlerResult};
 
@@ -54,19 +54,25 @@ async fn bundle_page() -> HandlerResult<&'static str>{
             ManageTemplate{ 
                 api_data: ManageMetaData{ 
                     load_list_endp: "/api/admin/bundles/list", 
-                    submit_endp: "/api/admin/bundles/new", 
+                    submit_endp: "/dev/debug", 
                     delete_endp: "/api/admin/bundles/delete", 
                     search_endp: "/api/admin/bundles/list" 
                 }, 
                 title: "Bundles", 
-                columns: vec![
-                        ("Name", 13), ("Status", 5), ("Items", 5), ("Price", 5),
-                        ("Created by", 10), ("Created at", 10), ("Edited by", 10), 
-                        ("Edited at", 10), ("Actions", 10)
-                    ], 
-                filters: vec![
-                        ("Active", ""), ("Inactive", ""), ("OutOfStock", "")
-                    ],   
+                columns: &[
+                    ("Name", 13), ("Status", 5), ("Items", 5), ("Price", 5),
+                    ("Created by", 10), ("Created at", 10), ("Edited by", 10), 
+                    ("Edited at", 10), ("Actions", 10)
+                ], 
+                filters: &[
+                    ("Active", ""), ("Inactive", ""), ("OutOfStock", "")
+                ],  
+                form_inputs: &[ 
+                    FormModalInput::Text { field: "name", label: "Name", placeholder: "Bundle name" },
+                    FormModalInput::Number { field: "price", label: "Price", placeholder: "0.00", step: 0.01 },
+                    FormModalInput::Text { field: "description", label: "Description", placeholder: "description" },
+                    FormModalInput::List { field: "list", label: "Items", list_endp: "/api/products/essential-list", placeholder: "Item" }
+                ]
             }.to_string()
         )
         .as_str()

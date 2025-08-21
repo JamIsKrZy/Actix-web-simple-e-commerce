@@ -25,7 +25,7 @@
 
 
     <!-- Modal for Creating -->
-    <div id="create-modal" class="modal">
+    <div id="create-modal" class="modal align-center">
         <div class="modal-content">
             <div class="header">
                 <h1>Create Product</h1>
@@ -50,19 +50,29 @@
                 </div>
 
                 <div>
+                    <label for="status">Status:</label>
+                    <select id="status" name="status" required>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+                
+                <div>
                     <label for="price">Price</label><br>
                     <input type="number" step="0.01" min="0.00" name="price" id="price" placeholder="0.00" oninput="limitDecimal(this)" style="width: 20%;">
                 </div>
 
                 <div>
                     <label for="stock">Available Stocks</label><br>
-                    <input type="number" min="0" name="stock" placeholder="0" ="stock" id="stock" style="width: 20%;">
+                    <input type="number" min="0" name="stock" placeholder="0" id="stock" style="width: 20%;">
                 </div>
 
                 <div class="confirm-action">
                     <button type="submit">Submit</button>
                     <button type="button" onclick="closeCreateModal()">Cancel</button>
                 </div>
+
+                
             </form>
             
         </div>
@@ -186,6 +196,8 @@
             <button> -> </button>
         </div>
     </div>
+
+    
 
 
 

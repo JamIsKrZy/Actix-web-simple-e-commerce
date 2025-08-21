@@ -70,7 +70,7 @@ async fn login_page() -> Result<impl Responder, crate::Error> {
 mod template{
     use std::borrow::Cow;
 
-    use lib_core::template_format::{ActionItem, ProductPage, UserActionTemplate};
+    use lib_core::template_format::{ActionItem, UserActionTemplate};
 
     use actix_files::NamedFile;
     use actix_session::Session;

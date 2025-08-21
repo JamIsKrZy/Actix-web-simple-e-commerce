@@ -16,12 +16,19 @@ use crate::{models::{Pagination, ProductStatus, QueryFilterBuilder, QueryResult}
 
 // region:    --- Schemas
 
+#[derive(Debug, FromRow, Serialize, Deserialize)]
+pub struct ProductEssential{
+    pub name: String,
+    pub id: i32,
+}
+
 #[derive(Debug, Deserialize)]
 pub struct NewProduct{
     pub name: String,
     pub description: Option<String>,
     pub price: Decimal,
-    pub stock: i32
+    pub stock: i32,
+    pub status: ProductStatus
 } 
 
 #[derive(Debug, Deserialize)]
@@ -56,7 +63,13 @@ pub struct PageFilter{
 }
 
 impl QueryFilterBuilder for PageFilter{
-    fn append_query<DB: sqlx::Database>(&self, query: &mut QueryBuilder<DB>) {
+    fn append_query(&self, query: &mut QueryBuilder<Postgres>) {
+
+
+        if let Some(prefix) = &self.prefix {
+            query.push("WHERE name ILIKE ")
+                .push_bind(format!("{}%", prefix));
+        }
         return;
     }
 }
@@ -70,6 +83,31 @@ pub struct Bmc;
 
 impl Bmc{
 
+
+    pub async fn essential_list(
+        page: Pagination<PageFilter>,
+        db: &impl DbPoolExtract<Postgres> 
+    ) -> QueryResult<Vec<ProductEssential>>{
+
+        let mut query = sqlx::QueryBuilder::new(
+            "SELECT
+                name, id
+                FROM products "
+        );
+
+        page.append_query(&mut query);
+
+        let list = query
+            .build_query_as::<ProductEssential>()
+            .fetch_all(db.pool())
+            .await
+            .map_err(|e| 
+                crate::DbError::FailedSelect { log: e.to_string() }
+            )?;
+
+        Ok(list)
+    }
+
     pub async fn new_product(
         product: NewProduct,
         who: impl AsRef<Uuid>,
@@ -80,18 +118,19 @@ impl Bmc{
             name, 
             description, 
             price, 
-            stock 
+            stock ,
+            status
         } = product;
         
         let _ = sqlx::query!("
             INSERT INTO products(
-                name, description, price, 
+                name, description, price, status,
                 stocks, created_by 
             ) VALUES (
-                $1, $2, $3, 
-                $4, $5
+                $1, $2, $3, $4,
+                $5, $6
             )",
-            name, description, price, 
+            name, description, price, status as ProductStatus,
             stock, who.as_ref()
         )
         .execute(db.pool())

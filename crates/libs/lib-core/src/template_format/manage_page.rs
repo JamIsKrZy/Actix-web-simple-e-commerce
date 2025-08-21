@@ -22,6 +22,21 @@ impl EmptyListTable {
 }
 
 
+/// 
+#[derive(Debug)]
+pub enum FormModalInput{
+    Text{ field: &'static str,   label: &'static str, placeholder: &'static str },
+    Number{ field: &'static str, label: &'static str, placeholder: &'static str, step: f32},
+
+    /// 
+    Option{ field: &'static str, label: &'static str, options: &'static[&'static str] },
+
+    /// Modal can add more items into the list 
+    List{ field: &'static str,  label: &'static str, list_endp: &'static str, placeholder: &'static str},
+} 
+
+
+
 // region:    --- Product Page
 
 
@@ -45,7 +60,7 @@ pub struct ProductList{
 }
 
 #[derive(Debug, Template)]
-#[template(path="admin/bundle_list.html")]
+#[template(path="admin/bundle_list.html.j2")]
 pub struct BundleList{
     bundles: Vec<ForAdminBundleList>
 }
@@ -77,16 +92,17 @@ pub struct ManageMetaData{
 }
 
 
-
 #[derive(Debug, Template)]
-#[template(path="admin/manage_pages.html")]
+#[template(path="admin/manage_pages.html.j2")]
 pub struct ManageTemplate{
     pub api_data: ManageMetaData,
     pub title: &'static str,
     // col name, width(percentage)
-    pub columns: Vec<(&'static str,u16)>,
+    pub columns: &'static [(&'static str,u16)],
     // For filtering in table: text display , url
-    pub filters: Vec<(&'static str, &'static str)>
+    pub filters: &'static [(&'static str, &'static str)],
+
+    pub form_inputs: &'static [FormModalInput]
 }
 
 
@@ -100,6 +116,30 @@ mod filters{
     ) -> askama::Result<String> {
         let s = serde_json::to_string(&s).unwrap_or("[]".to_string());
         Ok(s)
+    }
+
+}
+
+pub mod util {
+    use askama::Template;
+    use db_core::models::product::ProductEssential;
+
+    #[derive(Debug, Template)]
+    #[template(source = r#"
+<ul class="item-search-result">
+    {% for product in lists %}
+    <li class="search-item" data-id="{{ product.id }}" data-name="{{ product.name }}">{{ product.name }}</li>
+    {% endfor %}
+</ul>
+"#, ext = "html")]
+    pub struct OptionProductsTemplate{
+        lists: Vec<ProductEssential>
+    }
+
+    impl From<Vec<ProductEssential>> for OptionProductsTemplate{
+        fn from(value: Vec<ProductEssential>) -> Self {
+            Self { lists: value }
+        }
     }
 
 }

@@ -61,7 +61,8 @@ pub mod admin {
             },
             extension::extractor::Accepted::Html => {
                 Ok(HttpResponse::Ok().body(
-                    template_format::BundleList::from(list).to_string()
+                    template_format::manage_page
+                        ::BundleList::from(list).to_string()
                 ))
             },
         }

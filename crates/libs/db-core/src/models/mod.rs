@@ -37,11 +37,11 @@ impl Default for ProductStatus{
 
 
 pub trait QueryFilterBuilder{
-    fn append_query<DB: Database>(&self, query: &mut QueryBuilder<DB>);
+    fn append_query(&self, query: &mut QueryBuilder<Postgres>);
 }
 
 impl QueryFilterBuilder for () {
-    fn append_query<DB: Database>(&self, _: &mut QueryBuilder<DB>) {
+    fn append_query(&self, _: &mut QueryBuilder<Postgres>) {
         return;
     }
 }

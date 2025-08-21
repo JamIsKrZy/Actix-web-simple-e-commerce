@@ -1,0 +1,196 @@
+
+
+<!-- Ask request upon load -->
+<div
+    class="load-item-content"
+    hx-get="{{ api_data.load_list_endp }}"
+    hx-target="#item-list" 
+    hx-trigger="load"
+>
+</div>
+
+
+<!-- Modal for Creating -->
+<div id="create-modal" class="modal flex-center" >
+    <div class="modal-content">
+        <div class="header">
+            <h1>Create {{ title }}</h1>
+            <span class="close" onclick="closeCreateModal()">&times;</span>
+        </div>
+        <!-- hx-target="#response" -->
+        <!-- hx-on::after-request="if(event.target === this){ refresh_table_list(); closeCreateModal(); }" -->
+
+<form 
+    hx-ext="form-json"
+    hx-trigger="submit"
+    hx-post="/dev/debug"
+    hx-swap="none"
+>   
+
+    {% for input_t in form_inputs %}
+        {% match input_t %}
+        {% when FormModalInput::Text{field, label, placeholder} %}
+        <div>
+            <label for="{{field}}">{{label}}:</label>
+            <input type="text" name="{{field}}" id="{{field}}" placeholder="{{placeholder}}">
+        </div>
+
+        {% when FormModalInput::Number{field, label, placeholder, step} %}    
+        <div>
+            <label for="{{field}}">{{label}}</label><br>
+            <input type="number" step="{{step}}" min="0.00" name="{{field}}" id="{{field}}" placeholder="{{placeholder}}" oninput="limitDecimal(this)" style="width: 20%;">
+        </div>
+
+        {% when FormModalInput::Option{field, label, options} %}
+        <div>
+            <label for="{{field}}">{{label}}:</label>
+            <select id="{{field}}" name="{{field}}" required>
+            {% for option in options%}
+                <option value="{{option}}">{{option}}</option>
+            {% endfor %}
+            </select>
+        </div>
+
+        {% when FormModalInput::List{field, label, list_endp, placeholder} %}
+            <div class="item-list-div" data-endp="{{ list_endp }}">  
+                <label>{{label}}:</label>
+                <div class="item-row" id="0">
+                    <div style="position: relative;">
+                        <input 
+                            type="text" 
+                            placeholder="Search {{placeholder}}..."
+                            hx-get="{{list_endp}}"
+                            hx-target="#item-search-result-0"
+                            hx-swap="innerHtml"
+                            hx-vals="js:{prefix: this.value}"
+                            hx-trigger="input changed delay:500ms"
+                            hx-on:afterRequest="console.log('None')"
+                        >
+                        <input type="hidden" name="list[0][id]" id="item-id" required>
+                        <div id="item-search-result-0" class=""
+                            style="position: absolute; top: 100%; left: 0; width: 100%; z-index: 10; background: white; border: 1px solid #ccc; max-height: 200px; overflow-y: auto;">
+                        </div>
+                    </div>
+                    <input type="number" name="list[0][quantity]" required value="" min="0" placeholder="0">
+                </div>                    
+            </div>
+            <button 
+                class="add-list-button" 
+                type="button" 
+                onclick="addItemModal(this.previousElementSibling)">
+                Add Item
+            </button>
+            
+        {% endmatch %}
+    {% endfor %}
+    
+    <div class="confirm-action">
+        <button type="submit">Submit</button>
+        <button type="button" onclick="closeCreateModal()">Cancel</button>
+    </div>
+</form>
+
+            
+        </div>
+    </div>
+
+
+
+<!-- Modal for Deletion -->
+    <div id="delete-modal" class="modal" data-endpoint={{ api_data.delete_endp }}>
+    <div class="modal-content" >
+        <div class="header">
+            <h1>Delete {{ title }}</h1>
+            <span class="close" onclick="closeDeleteModal()">&times;</span>
+        </div>
+
+        <div>
+            <p>Are you sure you want to delete "<span id="delete-who"></span>" ?</p>
+        </div>
+
+        <div class="warning-action">
+            <button type="submit" onclick="">Delete</button>
+            <button type="button" onclick="closeDeleteModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+
+<h1 class="manage-title">{{ title }}</h1>
+
+<div class="item-action">
+
+    <!-- Filter -->
+    <div>
+        <div class="filter-div">
+            {% for opt in filters %}
+            <div
+                hx-get="{{ opt.1 }}"
+                hx-target="#display-list"
+            >{{ opt.0 }}</div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Search Button -->
+    <div>
+        <div class="search-div">
+            <input type="text" 
+                name="prefix"
+                class="custom-input" 
+                placeholder="Search..."
+                hx-get="{{ api_data.search_endp }}" 
+                hx-trigger="keyup[key=='Enter']" 
+                hx-target="#item-list" 
+                hx-include=".custom-input"
+                >
+            <div hx-get="{{ api_data.search_endp }}" 
+                hx-target="#item-list" 
+                hx-include=".custom-input" 
+            ><i class="bi bi-search"></i></div>
+        </div>
+
+        <!-- Add Button -->
+
+        <div class="add-button" onclick="openCreateModal('create-modal')">
+            <i class="bi bi-plus"></i>
+            <span>Add</span>
+        </div>
+
+    </div>
+</div>
+
+<div class="table-container">
+<table class="table-list">
+    <thead>
+        <tr >
+            {% for col in columns %}
+                <th style="width: {{ col.1 }}%;">{{ col.0 }}</th>
+            {% endfor  %}    
+        </tr>
+    </thead>
+    <tbody class="item-list" id="item-list" hx-swap="innerHtml">
+        <tr>
+            <td colspan="{{ columns.len() }}" >
+                <div class="display-list" id="display-list">
+                    <div class="empty-list">
+                        <div>List is Empty</div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
+</div>
+
+
+<div class="pager">
+    <div>
+        <button> <- </button>
+            <input type="number" name="" id="">
+        <button> -> </button>
+    </div>
+</div>
+
+
+

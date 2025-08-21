@@ -108,3 +108,50 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
+
+
+
+// -----------------------------------------
+//  SEARCH PRODUCT ITEM FUNCTIONALITY 
+//  FUNCTIONS UTIILIZED IN BUNDLES PAGE
+//
+// -------------------------------------------
+
+
+function addItemModal(element){
+    let itemCount = element.getElementsByClassName("item-row").length;
+    let endp = element.dataset.endp;
+    const newRow = document.createElement('div');
+    newRow.className = 'item-row';
+    newRow.id = `item-row-${itemCount}`;
+    newRow.innerHTML = `
+        <div style="position: relative;">
+            <input 
+                type="text" 
+                placeholder="Search Product..."
+                hx-get="${endp}"
+                hx-target="#item-search-result-${itemCount}"
+                hx-swap="innerHtml"
+                hx-vals="js:{prefix: this.value}"
+                hx-trigger="input changed delay:500ms"
+            >
+            <input type="hidden" name="list[${itemCount}][id]" required>
+            <div id="item-search-result-${itemCount}"
+                style="position: absolute; top: 100%; left: 0; width: 100%; z-index: 10; background: white; border: 1px solid #ccc; max-height: 200px; overflow-y: auto;">
+            </div>
+        </div>
+        <input type="number" name="list[${itemCount}][quantity]" required value="" min="0" placeholder="0">
+        <span class="close-item" style="cursor: pointer;" onclick="deleteItemModal(this)">&times;</span>
+    `;
+
+    element.appendChild(newRow);
+
+    htmx.process(newRow);
+    
+}
+
+function deleteItemModal(element) {
+
+    let row_item = element.closest('.item-row');
+    htmx.remove(row_item)
+}

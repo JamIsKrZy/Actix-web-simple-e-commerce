@@ -14,6 +14,7 @@ pub fn scope(cfg: &mut ServiceConfig){
     cfg.service(
         web::scope("/api")
             .configure(auth::public::scope)
+            .configure(product::public::scope)
 
 
             //  User Access
@@ -116,6 +117,7 @@ mod dev{
         ""
     }
 
+    
     #[post("/new/user")]
     async fn add_user(
         user_info: web::Json<AddUser<RawPassword>>,

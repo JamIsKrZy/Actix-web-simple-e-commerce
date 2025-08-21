@@ -3,6 +3,10 @@
 
 pub mod public {
     use actix_web::{get, web::{self, ServiceConfig}, HttpResponse};
+    use db_core::{models::{product::{self, PageFilter}, Pagination}, PostgressDbManager};
+    use extension::extractor::Accepted;
+    use lib_core::template_format;
+    use serde_json::json;
 
     use crate::{bind_scope_handlers, handlers::HandlerResult};
 
@@ -11,17 +15,46 @@ pub mod public {
         cfg.service(
             bind_scope_handlers!(
                 "/products",
-                list
+                display_list,
+                select_option_list
             )
         )
         ;
     }
 
     #[get("/list")]
-    async fn list(
+    async fn display_list(
 
     ) -> HandlerResult<HttpResponse> {
         todo!()
+    }
+
+    /// This list is primarly used for 
+    #[get("/essential-list")]
+    async fn select_option_list(
+        page: web::Query<Pagination<PageFilter>>,
+        acpt: extension::extractor::Accepted,
+        db: web::Data<PostgressDbManager>
+    ) -> HandlerResult<HttpResponse> {
+        
+        let page = page.into_inner();
+        let db = db.as_ref();
+        let list = product::Bmc::essential_list(page, db).await?;
+
+        match acpt {
+            Accepted::Json => {
+                Ok(HttpResponse::Ok().json(json!(
+                  list
+                )))
+            },
+            Accepted::Html => {
+                Ok(HttpResponse::Ok().body(
+                    template_format::manage_page
+                        ::util::OptionProductsTemplate::from(list)
+                        .to_string()
+                ))
+            },
+        }
     }
 }
 
@@ -55,7 +88,7 @@ pub mod admin {
     use actix_web::{delete, get, patch, post, web::{self, ServiceConfig}, HttpResponse};
     use db_core::{models::{product::{self, NewProduct}, Pagination}, PostgressDbManager};
     use extension::extractor::Accepted;
-    use lib_core::template_format::{self, EmptyListTable};
+    use lib_core::template_format::{self, manage_page::EmptyListTable};
     use serde_json::json;
 
     use crate::{bind_scope_handlers, handlers::HandlerResult};
@@ -79,6 +112,8 @@ pub mod admin {
         usr_ctx: extension::extractor::Context
     ) -> HandlerResult<HttpResponse> {
         
+        dbg!(&info);
+
         let product = info.into_inner();
         let db = db.as_ref();
         let _ = product::Bmc::new_product(product, usr_ctx.id, db)
@@ -137,7 +172,8 @@ pub mod admin {
             },
             Accepted::Html => {
                 Ok(HttpResponse::Ok().body(
-                    template_format::ProductList::from(list).to_string()
+                    template_format::manage_page
+                        ::ProductList::from(list).to_string()
                 ))
             },
         }
