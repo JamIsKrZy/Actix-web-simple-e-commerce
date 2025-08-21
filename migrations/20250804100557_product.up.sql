@@ -28,7 +28,7 @@ CREATE TABLE
 CREATE TABLE
     IF NOT EXISTS bundles (
         id SERIAL UNIQUE NOT NULL ,
-        name VARCHAR(128) NOT NULL,
+        name VARCHAR(128) NOT NULL UNIQUE,
         price NUMERIC(12,2) NOT NULL,
         status product_status NOT NULL DEFAULT 'Inactive',
         created_by UUID NOT NULL,

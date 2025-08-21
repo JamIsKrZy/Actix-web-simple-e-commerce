@@ -78,7 +78,7 @@ mod template{
     use db_core::{ctx::Context, Role};
     use lib_core::user_action_new;
 
-    use crate::Error;
+    use crate::{handlers::pages::manage_page, Error};
 
     pub fn scope(cfg: &mut ServiceConfig){
         cfg.service(

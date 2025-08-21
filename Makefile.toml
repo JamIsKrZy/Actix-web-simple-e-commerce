@@ -1,0 +1,77 @@
+
+
+
+
+[tasks.dev]
+workspace = false
+command = "cargo"
+args = ["run", "--bin", "main", "--features", "dev_env"] 
+
+
+
+# Arguments:
+# First parameter - product to create
+# First parameter - bundles to create
+[tasks.seed_product]
+workspace = false
+description = "Fill the product table with random contents"
+cwd = "dev/seed/"
+env = { "USERNAME" ="jusme", "PASSWORD"="password123", VAR="${@}"}
+script = '''
+    uv run main.py --username ${USERNAME} --password ${PASSWORD} --product-amount ${1:-10} --bundle-amount ${2:-2}
+'''
+
+
+
+[tasks.remigrate]
+workspace = false
+description = "Revert migrations until a migration containing the target text is reached"
+
+
+
+[tasks.remigrate.linux]
+workspace = false
+description = "Revert migrations until a migration containing the target text is reached"
+script_runner = "bash"
+script = [
+    "TARGET=\"$1\"",
+    "if [ -z \"$TARGET\" ]; then",
+    "   echo \"Usage: $0 <target text>\"",
+    "   exit 1",
+    "fi",
+    # Get all applied migrations (ignore pending)
+    "APPLIED_LINES=$(sqlx migrate info | grep 'installed')",
+
+    # Convert to array for processing
+    "mapfile -t LINES <<< \"$APPLIED_LINES\"",
+
+    "COUNT=0",
+    "FOUND=false",
+
+    # Loop from the last applied migration backwards
+    "for (( i=${#LINES[@]}-1 ; i>=0 ; i-- )); do",
+    "    LINE=\"${LINES[i]}\"",
+
+    # "    if [[ \"$LINE\" == *\"pending\"* ]]; then",
+    # "        continue",
+    # "    fi",
+
+    "    COUNT=$((COUNT + 1))",
+
+        # Found the target migration file
+    "    if [[ \"$LINE\" == *\"$TARGET\"* ]]; then",
+    "        echo \"Migrating until: $LINE\"",
+    "        FOUND=true",
+    "        break",
+    "    fi",
+    "done",
+
+    "if [[ $FOUND == true ]]; then",
+    "    for (( i=0 ; i<COUNT ; i++ )); do",
+    "        sqlx migrate revert",
+    "    done",
+    "    sqlx migrate run",
+    "else ",
+    "    echo \"No migration found containing target: $TARGET\"",
+    "fi"
+]

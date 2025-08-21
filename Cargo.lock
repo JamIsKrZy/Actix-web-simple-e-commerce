@@ -1913,6 +1913,7 @@ dependencies = [
  "db-core",
  "jsonwebtoken",
  "serde",
+ "serde_json",
  "support-core",
  "uuid",
 ]

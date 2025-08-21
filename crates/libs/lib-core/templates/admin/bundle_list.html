@@ -1,0 +1,39 @@
+{% for product in bundles %}
+    <tr data-id="{{ product.id }}" >
+        <td>{{ product.name }}</td>
+        <td>{% match product.status %}
+                {% when ProductStatus::Active %}
+                    <div class="status-green">Active</div>
+                {% when ProductStatus::Inactive %}
+                    <div class="status-red">Inactive</div>
+            {% endmatch %}
+        </td>
+	    <td><div class="item-pop-up"></div></td>
+        <td>{{ product.price }}</td>
+        <td>{{ product.created_by }}</td>
+        <td>{{ product.created_at }}</td>
+        <td>{% if let Some(field) = product.edited_by %}
+                {{ field }}
+            {% else %}
+                (null)
+            {% endif %}
+        </td>
+        <td>{% if let Some(field) = product.edited_at %}
+                {{ field }}
+            {% else %}
+                (null)
+            {% endif %}
+        </td>
+        <td>
+            <button>Edit</button>
+            <button onclick="openDeleteModal(this)">Delete</button>
+        </td>
+    </tr>
+{% endfor %}
+<script>
+var bundle_product_ref = {
+    {% for product in bundles %}
+        {{ product.id }}: {{ product.items | serde_to_string | safe }}{% if loop.last %}{% else %},{% endif %}
+    {% endfor %}
+};
+</script>

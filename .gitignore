@@ -27,3 +27,4 @@ db_scheme.drawio
 dummy_qry.sql
 *.css.map
 .venv/
+*.sh

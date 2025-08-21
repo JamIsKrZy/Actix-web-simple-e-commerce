@@ -50,7 +50,7 @@ pub fn config() -> Config{
 
 
 pub fn config_envrironment(){
-    env_logger::init_from_env(Env::default().default_filter_or("debug"));
+    env_logger::init_from_env(Env::default().default_filter_or("debug,h2=off"));
 
     #[cfg(feature = "dev_env")]
     {

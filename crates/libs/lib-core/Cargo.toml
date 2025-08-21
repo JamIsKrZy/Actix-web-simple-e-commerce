@@ -11,6 +11,7 @@ argon2 = {version = "0.5.3", features = ["password-hash"]}
 support-core={path = "../support-core"}
 jsonwebtoken = "9.3.1"
 askama = "0.14.0"
+serde_json={workspace = true}
 
 [dev-dependencies]
 actix-web={workspace = true}

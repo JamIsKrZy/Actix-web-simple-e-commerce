@@ -6,6 +6,9 @@ mod manage_page;
 pub use manage_page::ProductPage;
 pub use manage_page::ProductList;
 pub use manage_page::EmptyListTable;
+pub use manage_page::BundleList;
+pub use manage_page::ManageMetaData;
+pub use manage_page::ManageTemplate;
 
 #[macro_export]
 macro_rules! user_action_new {

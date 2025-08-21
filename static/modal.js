@@ -26,17 +26,18 @@ function openDeleteModal(button) {
 
     // Update modal text
     document.getElementById("delete-who").textContent = name;
+    let endp = document.getElementById("delete-modal").getAttribute("data-endpoint");
 
     // Update onclick attribute dynamically
     const deleteButton = document.querySelector("#delete-modal button[type='submit']");
-    deleteButton.setAttribute("onclick", `request_delete('products', ${id})`);
+    deleteButton.setAttribute("onclick", `request_delete('${endp}${id}')`);
 
     // Show modal
     document.getElementById("delete-modal").style.display = "flex";
 }
 
-function request_delete(what, id){
-    fetch(`/api/admin/${what}/delete/${id}`, {
+function request_delete(endp){
+    fetch(endp, {
         method: 'DELETE', // Specify DELETE
         headers: {
             'Content-Type': 'application/json', // Optional: depends on backend

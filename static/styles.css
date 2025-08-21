@@ -441,6 +441,11 @@ main .main-container {
   height: 27px;
 }
 
+.manage-title {
+  margin-top: 0;
+  text-transform: capitalize;
+}
+
 .pager {
   display: flex;
   justify-content: right;
@@ -463,7 +468,7 @@ main .main-container {
 }
 
 .table-container {
-  max-height: 70vh; /* limit height */
+  max-height: 63vh; /* limit height */
   overflow-y: auto; /* vertical scrolling */
   border: 2px solid black;
   border-radius: 5px;

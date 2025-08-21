@@ -14,13 +14,15 @@ pub mod worker {
 pub mod admin {
     use actix_web::{get, post, web::{self, ServiceConfig}, HttpResponse};
     use db_core::{models::{bundles::{self, NewBundle}, Pagination}, PostgressDbManager};
+    use lib_core::template_format;
     use serde_json::json;
 
     use crate::{bind_scope_handlers, handlers::{service::bundle, HandlerResult}};
 
     pub fn scope(cfg: &mut ServiceConfig){
         bind_scope_handlers!(cfg, "/bundles",
-            create_bundle
+            create_bundle,
+            list_bundles
         );
     }
 
@@ -29,7 +31,7 @@ pub mod admin {
         info: web::Json<NewBundle>,
         db: web::Data<PostgressDbManager>,
         user_ctx: extension::extractor::Context
-    ) -> HandlerResult<HttpResponse> {
+    ) -> HandlerResult<HttpResponse> { 
 
         let db = db.as_ref();
         let bundle = info.into_inner();
@@ -42,15 +44,27 @@ pub mod admin {
     async fn list_bundles(
         page: web::Query<Pagination<()>>,
         db: web::Data<PostgressDbManager>,
+        acpt: extension::extractor::Accepted,
     ) -> HandlerResult<HttpResponse> {
+
 
         let db = db.as_ref();
         let page = page.into_inner();
         let list = bundles::Bmc::get_full_list(page, db)
             .await?;
 
-        Ok(HttpResponse::Ok().json(json!({ 
-            "list": list
-        })))
+        match acpt {
+            extension::extractor::Accepted::Json => {
+                Ok(HttpResponse::Ok().json(json!({ 
+                    "list": list
+                })))
+            },
+            extension::extractor::Accepted::Html => {
+                Ok(HttpResponse::Ok().body(
+                    template_format::BundleList::from(list).to_string()
+                ))
+            },
+        }
+        
     }
 }

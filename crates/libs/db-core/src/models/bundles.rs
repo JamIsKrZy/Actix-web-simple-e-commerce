@@ -8,7 +8,7 @@
 use chrono::NaiveDateTime;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-use sqlx::{prelude::FromRow, Postgres};
+use sqlx::{prelude::FromRow, Postgres, Transaction};
 use uuid::Uuid;
 
 use crate::{models::{Pagination, ProductStatus, QueryResult, BIND_LIMIT}, utils::DbPoolExtract};
@@ -44,6 +44,7 @@ pub struct ForAdminBundleList{
     pub id: i32,
     pub name: String,
     pub price: Decimal,
+    pub status: ProductStatus,
 
     #[sqlx(skip)]
     pub items: Option<Vec<BundleItemDetail>>,
@@ -72,6 +73,9 @@ impl Bmc{
         db: &impl DbPoolExtract<Postgres>
     ) -> QueryResult<()> {
 
+        let mut trans = db.transaction().await
+            .map_err(|_| crate::DbError::InitTransactionErr)?; 
+
         let NewBundle { 
             name, 
             price, 
@@ -94,17 +98,23 @@ impl Bmc{
             name, price, status as ProductStatus,
             who
         )
-        .fetch_one(db.pool())
+        .fetch_one(&mut *trans)
         .await
         .map_err(|e| crate::DbError::FailedInsert { log: e.to_string() })?;
 
-        Self::insert_items_no_edit_record(bundle_id, items, db).await
+        Self::insert_items_no_edit_record(bundle_id, items, &mut trans).await?;
+
+
+        trans.commit().await
+            .map_err(|_| crate::DbError::TransactionCommitErr)?;
+
+        Ok(())
     }
 
     async fn insert_items_no_edit_record(
         bundle_id: i32,
         items: impl AsRef<[BundleItem]>,
-        db: &impl DbPoolExtract<Postgres>
+        db: &mut Transaction<'static, Postgres>
     ) -> QueryResult<()> {
 
         let items = items.as_ref();
@@ -124,7 +134,7 @@ impl Bmc{
         });
 
         query.build()
-            .execute(db.pool())
+            .execute(&mut **db)
             .await
             .map(|_| ())
             .map_err(|e| 
@@ -157,9 +167,6 @@ impl Bmc{
         db: &impl DbPoolExtract<Postgres>
     ) -> QueryResult<Vec<ForAdminBundleList>> {
 
-        let trans = db.transaction()
-            .await
-            .map_err(|_| crate::DbError::InitTransactionErr)?;
         
         let mut query= sqlx::QueryBuilder::new(
             "SELECT 
@@ -208,10 +215,6 @@ impl Bmc{
             i.items = Some(item_list);
         }
 
-
-        trans.commit().await.map_err(|_| 
-            crate::DbError::TransactionCommitErr
-        )?;
 
         Ok(list)
     }
