@@ -462,9 +462,12 @@ main .main-container {
 .modal-content > form > div > .item-row {
   display: flex;
   gap: 20px;
-  width: auto;
+  justify-content: flex-start;
   align-items: center;
   margin-bottom: 1vh;
+}
+.modal-content > form > div > .item-row .hide-input {
+  display: none;
 }
 .modal-content > form > div > .item-row input {
   padding-left: 5px;
@@ -477,6 +480,34 @@ main .main-container {
 .modal-content > form > div > .item-row button {
   font-size: 24;
   height: 27px;
+}
+.modal-content > form > div > .item-row > div {
+  position: relative;
+}
+.modal-content > form > div > .item-row > div > .result-options {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  background: white;
+  border: 1px solid #ccc;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.modal-content > form > div > .item-row > div > .result-options ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+.modal-content > form > div > .item-row > div > .result-options ul > li {
+  cursor: pointer;
+  font-size: small;
+  padding: 10px 0 10px 1rem;
+}
+.modal-content > form > div > .item-row > div > .result-options ul > li:hover {
+  background-color: #cccccc;
 }
 .modal-content > form > div > .item-row:last-child {
   margin-bottom: 0.3vh;

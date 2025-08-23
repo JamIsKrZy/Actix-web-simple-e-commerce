@@ -542,15 +542,21 @@ main{
                 height: 27px;
             }
 
+
+            // Styles for search result & quantity field
+            // They are align in one row
             > .item-row{
                 display: flex;
                 gap: 20px;
-                width: auto;
-                // justify-content: flex-start;
+                // width: auto;
+                justify-content: flex-start;
 
                 align-items: center;
                 margin-bottom: 1vh;
 
+                .hide-input {
+                    display: none;
+                }
 
                 input {
                     padding-left: 5px;
@@ -571,7 +577,44 @@ main{
 
                     // margin-bottom: 1vh;
                 }
+
+                > div { 
+                    position: relative;
+                }
+
+                > div > .result-options {
+
+                    display: none;
+                    position: absolute; 
+                    top: 100%; 
+                    left: 0; 
+                    width: 100%; 
+                    z-index: 10; 
+                    background: white; 
+                    border: 1px solid #ccc; 
+                    max-height: 200px; 
+                    overflow-y: auto;
+
+                    ul {
+                        list-style-type: none;
+                        padding: 0;
+                        margin: 0;
+                    }
+
+                    ul > li {
+                        cursor: pointer;
+                        font-size: small;
+                        padding: 10px 0 10px 1rem ;
+                    }
+
+                    ul > li:hover {
+                        background-color: darken($color: white, $amount: 20%);
+                    }
+
+                }
+
             }
+
 
             > .item-row:last-child {
                 margin-bottom: 0.3vh;
@@ -582,6 +625,7 @@ main{
 
             }
 
+            
             
 
         }

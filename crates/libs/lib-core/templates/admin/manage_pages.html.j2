@@ -23,8 +23,9 @@
 <form 
     hx-ext="form-json"
     hx-trigger="submit"
-    hx-post="/dev/debug"
+    hx-post="{{ api_data.submit_endp }}"
     hx-swap="none"
+    hx-on::after-request="if(event.target === this){ refresh_table_list(); closeCreateModal(); }"
 >   
 
     {% for input_t in form_inputs %}
@@ -54,6 +55,8 @@
         {% when FormModalInput::List{field, label, list_endp, placeholder} %}
             <div class="item-list-div" data-endp="{{ list_endp }}">  
                 <label>{{label}}:</label>
+
+
                 <div class="item-row" id="0">
                     <div style="position: relative;">
                         <input 
@@ -63,17 +66,19 @@
                             hx-target="#item-search-result-0"
                             hx-swap="innerHtml"
                             hx-vals="js:{prefix: this.value}"
-                            hx-trigger="input changed delay:500ms"
+                            hx-trigger="input changed delay:500ms, focus"
                             hx-on:afterRequest="console.log('None')"
                         >
-                        <input type="hidden" name="list[0][id]" id="item-id" required>
-                        <div id="item-search-result-0" class=""
-                            style="position: absolute; top: 100%; left: 0; width: 100%; z-index: 10; background: white; border: 1px solid #ccc; max-height: 200px; overflow-y: auto;">
-                        </div>
+                        <input class="hide-input" id="product-id" type="number" name="items[0][product_id]" required>
+                        <div id="item-search-result-0" class="result-options"></div>
                     </div>
-                    <input type="number" name="list[0][quantity]" required value="" min="0" placeholder="0">
-                </div>                    
+                    <input type="number" name="items[0][quantity]" value="" min="0" placeholder="0" required>
+                </div>      
+
+
+
             </div>
+
             <button 
                 class="add-list-button" 
                 type="button" 
@@ -91,8 +96,8 @@
 </form>
 
             
-        </div>
     </div>
+</div>
 
 
 

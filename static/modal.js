@@ -133,14 +133,12 @@ function addItemModal(element){
                 hx-target="#item-search-result-${itemCount}"
                 hx-swap="innerHtml"
                 hx-vals="js:{prefix: this.value}"
-                hx-trigger="input changed delay:500ms"
+                hx-trigger="input changed delay:500ms, focus"
             >
-            <input type="hidden" name="list[${itemCount}][id]" required>
-            <div id="item-search-result-${itemCount}"
-                style="position: absolute; top: 100%; left: 0; width: 100%; z-index: 10; background: white; border: 1px solid #ccc; max-height: 200px; overflow-y: auto;">
-            </div>
+            <input class="hide-input" id="product-id" type="number" name="items[${itemCount}][product_id]" required>
+            <div id="item-search-result-${itemCount}" class="result-options"></div>
         </div>
-        <input type="number" name="list[${itemCount}][quantity]" required value="" min="0" placeholder="0">
+        <input type="number" name="items[${itemCount}][quantity]" value="" min="0" placeholder="0" required>
         <span class="close-item" style="cursor: pointer;" onclick="deleteItemModal(this)">&times;</span>
     `;
 
@@ -155,3 +153,65 @@ function deleteItemModal(element) {
     let row_item = element.closest('.item-row');
     htmx.remove(row_item)
 }
+
+
+// BUNDLE PAGE FUNCTIONALITY
+// 
+// Action listener if modal item 
+// 
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Show dropdown after htmx swaps results in
+    document.body.addEventListener("htmx:afterSwap", (e) => {
+    const target = e.detail.target;
+        if (target.classList.contains("result-options")) {
+            // Hide all other dropdowns first
+            document.querySelectorAll(".result-options").forEach(d => {
+            if (d !== target) d.style.display = "none";
+            });
+
+            // Show if it has <li> children
+            if (target.querySelector("li")) {
+            target.style.display = "block";
+            } else {
+            target.style.display = "none";
+            }
+        }
+    });
+
+    document.body.addEventListener("input", (e) => {
+        if (e.target.matches(".item-row input[type='text']")) {
+            const container = e.target.closest("div");
+            const hiddenInput = container.querySelector("input[type='hidden']");
+            if (hiddenInput) {
+                hiddenInput.value = ""; // clear hidden value on manual change
+            }
+        }
+    }); 
+
+  // Handle clicking on an <li> item
+  document.body.addEventListener("click", (e) => {
+    if (e.target.tagName === "LI" && e.target.closest(".result-options")) {
+        const dropdown = e.target.closest(".result-options");
+        const container = dropdown.closest("div").parentElement; // the relative container
+
+        const textInput = container.querySelector("input[type='text']");
+        const hiddenInput = container.querySelector("#product-id");
+
+        if (textInput && hiddenInput) {
+            textInput.value = e.target.dataset.name || "";
+            hiddenInput.value = parseInt(e.target.dataset.id, 10) | "";   
+        }
+        
+        dropdown.style.display = "none";
+    } 
+    else if (!e.target.closest(".item-row")) {
+        document.querySelectorAll(".result-options").forEach(d => {
+        d.style.display = "none";
+        });
+    }
+    });
+});
+

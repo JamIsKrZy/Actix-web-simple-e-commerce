@@ -13,3 +13,4 @@ serde_json={workspace = true}
 chrono = {version = "0.4.41", features = ["serde"]}
 rust_decimal = "1.37.2"
 actix-web={workspace = true}
+serde_with = "3.14.0"

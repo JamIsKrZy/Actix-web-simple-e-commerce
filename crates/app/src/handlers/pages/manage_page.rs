@@ -54,7 +54,7 @@ async fn bundle_page() -> HandlerResult<&'static str>{
             ManageTemplate{ 
                 api_data: ManageMetaData{ 
                     load_list_endp: "/api/admin/bundles/list", 
-                    submit_endp: "/dev/debug", 
+                    submit_endp: "/api/admin/bundles/new", 
                     delete_endp: "/api/admin/bundles/delete", 
                     search_endp: "/api/admin/bundles/list" 
                 }, 

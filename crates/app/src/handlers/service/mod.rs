@@ -106,7 +106,7 @@ mod dev{
     async fn debug_payload(
         payload: String
     ) -> impl Responder {
-        dbg!(&payload);
+        println!("{}", payload);
         HttpResponse::Ok().body("")
     }
 

@@ -8,6 +8,7 @@
 use chrono::NaiveDateTime;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
 use sqlx::{prelude::FromRow, Postgres, Transaction};
 use uuid::Uuid;
 
@@ -23,9 +24,12 @@ pub struct BundleItem{
 
 
 #[derive(Debug, Deserialize)]
+#[serde_as]
 pub struct NewBundle{
     pub name: String,
     pub price: Decimal,
+
+    #[serde_as(as = "serde_with::VecSkipError<_>")]
     pub items: Vec<BundleItem>,
 
     #[serde(default)]
