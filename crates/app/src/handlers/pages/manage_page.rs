@@ -69,6 +69,7 @@ async fn bundle_page() -> HandlerResult<&'static str>{
                 ],  
                 form_inputs: &[ 
                     FormModalInput::Text { field: "name", label: "Name", placeholder: "Bundle name" },
+                    FormModalInput::Option { field: "status", label: "Status", options: &["Active", "Inactive"] },
                     FormModalInput::Number { field: "price", label: "Price", placeholder: "0.00", step: 0.01 },
                     FormModalInput::Text { field: "description", label: "Description", placeholder: "description" },
                     FormModalInput::List { field: "list", label: "Items", list_endp: "/api/products/essential-list", placeholder: "Item" }

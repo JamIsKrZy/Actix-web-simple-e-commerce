@@ -111,8 +111,6 @@ pub mod admin {
         db: web::Data<PostgressDbManager>,
         usr_ctx: extension::extractor::Context
     ) -> HandlerResult<HttpResponse> {
-        
-        dbg!(&info);
 
         let product = info.into_inner();
         let db = db.as_ref();

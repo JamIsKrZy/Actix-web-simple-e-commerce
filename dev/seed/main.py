@@ -57,6 +57,7 @@ def create_products(
     for i in range(1, n + 1):
         product = {
             "name": fake.word().capitalize(),
+            "status": "Inactive",
             "description": fake.sentence(),
             "price": round(random.uniform(10, 500), 2),  # decimal(2)
             "stock": random.randint(1, 1000),            # i32

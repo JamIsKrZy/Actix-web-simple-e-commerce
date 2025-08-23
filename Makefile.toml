@@ -12,7 +12,7 @@ args = ["run", "--bin", "main", "--features", "dev_env"]
 # Arguments:
 # First parameter - product to create
 # First parameter - bundles to create
-[tasks.seed_product]
+[tasks.seed]
 workspace = false
 description = "Fill the product table with random contents"
 cwd = "dev/seed/"
