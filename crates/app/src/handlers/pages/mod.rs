@@ -95,7 +95,8 @@ mod template{
     #[get("/auth/login")]
     async fn login() -> Result<impl Responder, crate::Error> {
         Ok(
-            NamedFile::open("./static/template/login.html")
+            NamedFile::open_async("static/template/login.html")
+            .await
             .map_err(|e| 
                 crate::Error::External(Cow::Owned(e.to_string()))
             )?
@@ -105,7 +106,8 @@ mod template{
     #[get("/auth/signup")]
     async fn signup() -> Result<impl Responder, crate::Error> {
         Ok(
-            NamedFile::open("./static/template/signup.html")
+            NamedFile::open_async("static/template/signup.html")
+            .await
             .map_err(|e| 
                 crate::Error::External(Cow::Owned(e.to_string()))
             )?
