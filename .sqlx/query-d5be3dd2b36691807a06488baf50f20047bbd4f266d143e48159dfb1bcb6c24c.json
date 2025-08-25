@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT \n                    p.name ,\n                    b.quantity\n                FROM bundle_items as b\n                LEFT JOIN products AS p ON b.product_id = p.id\n                WHERE bundle_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "quantity",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "d5be3dd2b36691807a06488baf50f20047bbd4f266d143e48159dfb1bcb6c24c"
+}

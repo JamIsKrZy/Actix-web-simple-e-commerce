@@ -51,8 +51,16 @@ impl JwtDecoder for JwtHandler{
 }
 
 impl JwtHandler{
-    pub fn new() -> Self{
-        todo!()
+    pub fn from_base64_secret(secret: &str) -> Self{
+        let algo = jsonwebtoken::Algorithm::HS256;
+        Self { 
+            encode_key: EncodingKey::from_base64_secret(secret)
+                .expect("Encoding Key: Invalid secret key!"), 
+            header: Header::new(algo), 
+            decode_key: DecodingKey::from_base64_secret(secret)
+                .expect("Decoding Key: Invalid secret key!"), 
+            validation: Validation::new(algo) 
+        }
     }
 }
 
@@ -91,7 +99,7 @@ impl JwtHandler {
 
 
 pub struct AppPasswordHasher{
-    argon: Argon2<'static>
+    argon: Argon2<'static>,
 }
 
 impl PasswordHashifier for AppPasswordHasher{
@@ -107,8 +115,26 @@ impl Default for AppPasswordHasher{
 }
 
 impl AppPasswordHasher {
-    pub fn new() -> Self{
-        todo!()
+    pub fn from_secret(secret: &str) -> Self{
+        let alg = argon2::Algorithm::Argon2id;
+        let ver = argon2::Version::V0x13;
+        let params = argon2::Params::new(
+            32768, 
+            2, 
+            2, 
+            None
+        ).expect("AppPasswordHasher: Invalid Params"); 
+        
+        let leak_secret: &'static str = Box::leak(secret.to_string().into_boxed_str());
+        
+        Self {
+            argon: Argon2::new_with_secret(
+                leak_secret.as_bytes(), 
+                alg, 
+                ver, 
+                params
+            ).expect("AppPasswordHasher: Failed to create Argon"),
+        }
     }
 }
 

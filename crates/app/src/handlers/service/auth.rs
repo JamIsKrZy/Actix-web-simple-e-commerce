@@ -31,6 +31,8 @@ pub mod public {
         session: Session
     ) -> HandlerResult<HttpResponse>{
 
+
+
         let username = info.username.as_str();
         let dm = db.get_ref();
         let stored_user = user::Bmc::fetch_one_user(username, dm).await
@@ -44,13 +46,14 @@ pub mod public {
             .await
             .map_err(|_| crate::Error::InternalError)?
             .map_err(|e| crate::Error::HashErr(e))?;
-        
+
 
         let claim = Claim::new()
             .map_err(|_| crate::Error::InternalError)?;
 
         let claim = jwt.encode(&claim)
             .map_err(|_| crate::Error::InternalError)?;
+
 
         let ctx = Context::new(stored_user.id, stored_user.role);
 

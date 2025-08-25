@@ -73,7 +73,7 @@ pub async fn app_data_resource() -> (web::Data<PostgressDbManager>, web::Data<Jw
         if cfg!(feature = "dev_env") {
             JwtHandler::default()
         } else {
-            JwtHandler::new()
+            JwtHandler::default()
         }
     );
 

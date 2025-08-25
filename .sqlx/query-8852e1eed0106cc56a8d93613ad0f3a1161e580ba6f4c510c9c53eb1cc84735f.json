@@ -1,0 +1,57 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO users(\n                email, password, username,\n                first_name, last_name, location,\n                phone_no, role\n            ) \n            VALUES ( \n                $1, $2, $3,\n                $4, $5, $6,\n                $7, $8::user_role\n            ) \n            RETURNING id, role as \"role:Role\"",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "role:Role",
+        "type_info": {
+          "Custom": {
+            "name": "user_role",
+            "kind": {
+              "Enum": [
+                "Regular",
+                "Worker",
+                "Admin"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "user_role",
+            "kind": {
+              "Enum": [
+                "Regular",
+                "Worker",
+                "Admin"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "8852e1eed0106cc56a8d93613ad0f3a1161e580ba6f4c510c9c53eb1cc84735f"
+}

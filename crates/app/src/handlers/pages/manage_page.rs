@@ -60,7 +60,7 @@ async fn bundle_page() -> HandlerResult<&'static str>{
                 }, 
                 title: "Bundles", 
                 columns: &[
-                    ("Name", 13), ("Status", 5), ("Items", 5), ("Price", 5),
+                    ("Name", 13), ("Items", 5), ("Price", 5),
                     ("Created by", 10), ("Created at", 10), ("Edited by", 10), 
                     ("Edited at", 10), ("Actions", 10)
                 ], 

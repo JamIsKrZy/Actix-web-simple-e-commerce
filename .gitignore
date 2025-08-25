@@ -28,3 +28,6 @@ dummy_qry.sql
 *.css.map
 .venv/
 *.sh
+/target
+.shuttle*
+Secrets*.toml

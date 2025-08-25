@@ -1,0 +1,35 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO bundles(\n                name, price, status, \n                created_by\n            ) \n            VALUES(\n                $1, $2, $3,\n                $4\n            )\n            RETURNING id",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Numeric",
+        {
+          "Custom": {
+            "name": "product_status",
+            "kind": {
+              "Enum": [
+                "Inactive",
+                "Active"
+              ]
+            }
+          }
+        },
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "575ee64fcf9633b0c47bb42749f1d5e4babed6ef7ae3efe56def0b74e83f8c9a"
+}

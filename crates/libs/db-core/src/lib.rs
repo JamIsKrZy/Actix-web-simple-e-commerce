@@ -2,7 +2,7 @@ use std::pin::Pin;
 
 use sqlx::{postgres::PgPoolOptions, PgPool, Pool, Postgres, Transaction};
 
-use crate::utils::DbPoolExtract;
+pub use crate::utils::DbPoolExtract;
 
 
 mod utils;

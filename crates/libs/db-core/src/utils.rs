@@ -2,8 +2,6 @@ use std::pin::Pin;
 
 use sqlx::{Database, Pool, Transaction};
 
-use crate::DbError;
-
 
 
 pub trait DbPoolExtract<Db: Database>{

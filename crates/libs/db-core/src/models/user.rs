@@ -75,7 +75,7 @@ pub struct AddUser<S: PasswordState>{
     pub password: String,
     pub role: Role,
     #[serde(skip)]
-    _phantom: PhantomData<S>
+    pub _phantom: PhantomData<S>
 }
 
 

@@ -32,6 +32,7 @@ pub enum Error{
     External(Cow<'static, str>)
 }
 
+
 impl ResponseError for Error{
     fn status_code(&self) -> actix_web::http::StatusCode {
         actix_web::http::StatusCode::INTERNAL_SERVER_ERROR

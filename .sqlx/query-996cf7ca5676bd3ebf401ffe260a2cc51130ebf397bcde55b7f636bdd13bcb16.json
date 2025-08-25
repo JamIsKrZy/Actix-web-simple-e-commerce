@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO products(\n                name, description, price, status,\n                stocks, created_by \n            ) VALUES (\n                $1, $2, $3, $4,\n                $5, $6\n            )",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Numeric",
+        {
+          "Custom": {
+            "name": "product_status",
+            "kind": {
+              "Enum": [
+                "Inactive",
+                "Active"
+              ]
+            }
+          }
+        },
+        "Int4",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "996cf7ca5676bd3ebf401ffe260a2cc51130ebf397bcde55b7f636bdd13bcb16"
+}
