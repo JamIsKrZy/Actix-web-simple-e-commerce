@@ -1,6 +1,6 @@
 use std::{borrow::Cow, sync::OnceLock};
 
-use actix_files::NamedFile;
+use actix_files::{Files, NamedFile};
 use actix_web::{get, web::{self, ServiceConfig}};
 use lib_core::template_format::manage_page::{FormModalInput, ManageMetaData, ManageTemplate, ProductPage};
 
@@ -28,7 +28,7 @@ pub fn page_scope(cfg: &mut ServiceConfig){
 #[get("")]
 async fn page() -> HandlerResult<NamedFile>{
     Ok(
-        NamedFile::open("./static/manage.html")
+        NamedFile::open("static/manage.html")
         .map_err(|e| 
             crate::Error::External(Cow::Owned(e.to_string()))
         )?

@@ -49,7 +49,7 @@ pub fn scope(cfg: &mut ServiceConfig){
         
     )
     
-    .service(Files::new("/", "./static").index_file("home.html"))
+    .service(Files::new("/", "static").index_file("home.html"))
     ;
 }
 
@@ -57,7 +57,7 @@ pub fn scope(cfg: &mut ServiceConfig){
 #[get("/login")]
 async fn login_page() -> Result<impl Responder, crate::Error> {
     Ok(
-        NamedFile::open("./static/login.html")
+        NamedFile::open("static/login.html")
         .map_err(|e| 
             crate::Error::External(Cow::Owned(e.to_string()))
         )?
