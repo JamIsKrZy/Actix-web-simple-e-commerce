@@ -25,8 +25,9 @@ async fn main(
     let hasher = Arc::new(password_hasher);
     set_up::seed::seed_super_admin(&pool, &secrets, hasher).await;    
 
-
-    
+    unsafe {
+        std::env::set_var("RUST_LOG", "info,actix_web=info");
+    }
 
     let routes_shuttle = move |cfg: &mut ServiceConfig| {
 

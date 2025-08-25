@@ -1,8 +1,8 @@
 
 
 
-[deploy]
-include = [
+[build]
+assets = [
   "migrations/*", # include file.txt,
   "static/*", # include all files and subdirs in static/
   ".sqlx/*"

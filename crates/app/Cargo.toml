@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [features]
-
+dev_env=[]
 
 [dependencies]
 actix-web={workspace = true, features = ["rustls-0_23"]}
