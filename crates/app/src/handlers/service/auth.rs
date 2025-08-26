@@ -32,7 +32,7 @@ pub mod public {
     ) -> HandlerResult<HttpResponse> {
         let username = info.username.as_str();
         let dm = db.get_ref();
-        let stored_user = user::Bmc::fetch_one_user(username, dm)
+        let stored_user = user::Bmc::fetch_one_credential(username, dm)
             .await
             .map_err(crate::Error::DatabaseError)?;
 
@@ -120,4 +120,3 @@ pub mod user {}
 pub mod worker {}
 
 pub mod admin {}
-
