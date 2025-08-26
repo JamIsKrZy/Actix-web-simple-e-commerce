@@ -1,26 +1,26 @@
-
-
-
 pub mod public {
     use std::borrow::Cow;
 
     use actix_session::Session;
-    use actix_web::{get, http::{header, StatusCode}, post, web::{self, Header, ServiceConfig}, HttpResponse, Responder};
-    use db_core::{ctx::Context, models::user::{self, Login, RawPassword, SignUpUser}, PostgressDbManager};
+    use actix_web::{
+        HttpResponse, Responder, get,
+        http::{StatusCode, header},
+        post,
+        web::{self, ServiceConfig},
+    };
+    use db_core::{
+        PostgressDbManager,
+        ctx::Context,
+        models::user::{self, Login, RawPassword, SignUpUser},
+    };
     use lib_core::{AppPasswordHasher, Claim, JwtHandler};
-    use support_core::password_hasher::{HashError, HashPassword, PasswordHashifier};
+    use support_core::password_hasher::HashPassword;
 
-    use crate::{handlers::HandlerResult};
+    use crate::handlers::HandlerResult;
 
-    pub fn scope(cfg: &mut ServiceConfig){
-        cfg.service(login)
-            .service(signup)
-
-            
-        ;
+    pub fn scope(cfg: &mut ServiceConfig) {
+        cfg.service(login).service(signup);
     }
-
-
 
     #[post("/login")]
     async fn login(
@@ -28,66 +28,53 @@ pub mod public {
         pass_hash: web::Data<AppPasswordHasher>,
         db: web::Data<PostgressDbManager>,
         jwt: web::Data<JwtHandler>,
-        session: Session
-    ) -> HandlerResult<HttpResponse>{
-
-
-
+        session: Session,
+    ) -> HandlerResult<HttpResponse> {
         let username = info.username.as_str();
         let dm = db.get_ref();
-        let stored_user = user::Bmc::fetch_one_user(username, dm).await
-            .map_err(|e| crate::Error::DatabaseError(e))?;
-
-
+        let stored_user = user::Bmc::fetch_one_user(username, dm)
+            .await
+            .map_err(crate::Error::DatabaseError)?;
 
         let hasher = pass_hash.into_inner();
-        let _ = info.into_inner()
+        info.into_inner()
             .verify_password(hasher, stored_user.password)
             .await
             .map_err(|_| crate::Error::InternalError)?
-            .map_err(|e| crate::Error::HashErr(e))?;
+            .map_err(crate::Error::HashErr)?;
 
+        let claim = Claim::new().map_err(|_| crate::Error::InternalError)?;
 
-        let claim = Claim::new()
+        let claim = jwt
+            .encode(&claim)
             .map_err(|_| crate::Error::InternalError)?;
-
-        let claim = jwt.encode(&claim)
-            .map_err(|_| crate::Error::InternalError)?;
-
 
         let ctx = Context::new(stored_user.id, stored_user.role);
 
         // Give User session
-        let _ = session.insert("usr_ctx", ctx)
+        let _ = session
+            .insert("usr_ctx", ctx)
             .map_err(|_| crate::Error::InternalError);
-        
 
-        Ok(
-        HttpResponse::Ok()
-            .insert_header((header::AUTHORIZATION, format!("Bearer {}", claim)))    
-            .body("User Granted!")
-        )
+        Ok(HttpResponse::Ok()
+            .insert_header((header::AUTHORIZATION, format!("Bearer {claim}")))
+            .body(""))
     }
 
     #[get("/check")]
-    async fn check(
-        session: Session
-    ) -> impl Responder {
-
+    async fn check(session: Session) -> impl Responder {
         let contxt = session.get::<Context>("usr_ctx");
-        
+
         match contxt {
             Ok(o) => match o {
-                Some(ctxt) => HttpResponse::Ok()
-                    .body(format!("Have {} and {:?}", ctxt.id, ctxt.role)),
-                None => HttpResponse::Ok()
-                    .body("Nothing!"),
+                Some(ctxt) => {
+                    HttpResponse::Ok().body(format!("Have {} and {:?}", ctxt.id, ctxt.role))
+                }
+                None => HttpResponse::Ok().body("Nothing!"),
             },
             Err(_) => HttpResponse::InternalServerError().body("Error Failed deserialize"),
         }
-
     }
-
 
     #[post("/signup")]
     async fn signup(
@@ -95,56 +82,42 @@ pub mod public {
         pass_hash: web::Data<AppPasswordHasher>,
         db: web::Data<PostgressDbManager>,
         jwt: web::Data<JwtHandler>,
-        session: Session
-    ) -> HandlerResult<HttpResponse>{
-
-        
-
+        session: Session,
+    ) -> HandlerResult<HttpResponse> {
         let hasher = pass_hash.clone().into_inner();
         let dm = db.get_ref();
 
-        let hashed_data = info.into_inner()
+        let hashed_data = info
+            .into_inner()
             .hash_password(hasher)
             .await
-            .map_err(|_| crate::Error::InternalError)?  // web::Block Error
+            .map_err(|_| crate::Error::InternalError)? // web::Block Error
             .map_err(|_| crate::Error::InternalError)?; // Failed hash error
 
-        let ctx = user::Bmc::insert(hashed_data, dm)
-            .await
-            .map_err(|_| crate::Error::ErrorResponse(
-                StatusCode::CONFLICT, 
-                Cow::Borrowed("User Already exist")
-            ))?;
-            
-        let claim = Claim::new()
-            .map_err(|_| crate::Error::InternalError)?;
+        let ctx = user::Bmc::insert(hashed_data, dm).await.map_err(|_| {
+            crate::Error::ErrorResponse(StatusCode::CONFLICT, Cow::Borrowed("User Already exist"))
+        })?;
 
-        let claim = jwt.encode(&claim)
+        let claim = Claim::new().map_err(|_| crate::Error::InternalError)?;
+
+        let claim = jwt
+            .encode(&claim)
             .map_err(|_| crate::Error::InternalError)?;
 
         // Give User session
-        let _ = session.insert("usr_ctx", ctx)
+        let _ = session
+            .insert("usr_ctx", ctx)
             .map_err(|_| crate::Error::InternalError);
-            
-        
 
-        Ok(
-            HttpResponse::Created()
-            .insert_header((header::AUTHORIZATION, format!("Bearer {}", claim)))    
-            .append_header(("HX-Redirect", "/"))
-            .body("User Created")
-        )
+        Ok(HttpResponse::Created()
+            .insert_header((header::AUTHORIZATION, format!("Bearer {claim}")))
+            .body(""))
     }
 }
 
-pub mod user {
+pub mod user {}
 
-}
+pub mod worker {}
 
-pub mod worker {
+pub mod admin {}
 
-}
-
-pub mod admin {
-
-}

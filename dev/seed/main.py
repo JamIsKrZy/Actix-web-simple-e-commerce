@@ -64,8 +64,11 @@ def create_products(
         }
 
         resp = safe_request(session, "POST", product_url, json=product, timeout=timeout)
-
-        if resp.status_code in (200, 201):
+        
+        if resp is None:
+            print(f"[{i}/{n}] ❌ Failed to create product: No response received.")
+            continue
+        elif resp.status_code in (200, 201):
             print(f"[{i}/{n}] ✅ Created: {product['name']}")
         else:
             print(f"[{i}/{n}] ❌ {resp.status_code}: {resp.text}")
@@ -121,8 +124,11 @@ def create_bundles(session: requests.Session, base_url: str, n: int):
         # Step 5: Send request to create bundle
         bundle_url = f"{base_url}/api/admin/bundles/new"
         response = safe_request(session, "POST", bundle_url, json=payload)
-
-        if response.status_code == 201:
+        
+        if response is None :
+            print(f"[{i}/{n}] ❌ Failed to create bundle: No response received.")
+            continue
+        elif response.status_code == 201:
             print(f"[{i}/{n}] ✅ Bundle created successfully:")
         else:
             print(f"[{i}/{n}] ✅Failed to create bundle:", response.status_code, response.text)

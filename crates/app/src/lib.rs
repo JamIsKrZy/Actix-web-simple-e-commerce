@@ -16,8 +16,8 @@ pub fn build_session_handler(key: Key) -> SessionMiddleware<CookieSessionStore>{
 
     // detect environment (you can also use Shuttle's env var or your own)
     let secure = std::env::var("APP_ENV")
-        .map(|v| v == "production")
-        .unwrap_or(false);
+        .map(|v| !(v == "dev"))
+        .unwrap_or(true);
 
     SessionMiddleware::builder(cookie_storage, key)
         .cookie_http_only(true)
