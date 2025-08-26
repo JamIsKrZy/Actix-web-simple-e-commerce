@@ -25,12 +25,22 @@ pub struct ProductEssential {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct NewProduct {
+pub struct AddProduct {
     pub name: String,
     pub description: Option<String>,
     pub price: Decimal,
     pub stock: i32,
     pub status: ProductStatus,
+}
+
+#[derive(Debug, FromRow, Deserialize, Serialize)]
+pub struct ProductDescription {
+    pub id: i32,
+    pub name: String,
+    pub status: ProductStatus,
+    pub description: Option<String>,
+    pub price: Decimal,
+    pub stocks: i32,
 }
 
 #[derive(Debug, Deserialize)]
@@ -40,6 +50,13 @@ pub struct UpdateProduct {
     pub description: Option<String>,
     pub price: Option<Decimal>,
     pub stock: Option<i32>,
+}
+
+#[derive(Debug, FromRow, Deserialize, Serialize)]
+pub struct ForPublicProductList {
+    pub id: i32,
+    pub name: String,
+    pub price: Decimal,
 }
 
 #[derive(Debug, FromRow, Serialize, Deserialize)]
@@ -82,10 +99,49 @@ impl QueryFilterBuilder for PageFilter {
 pub struct Bmc;
 
 impl Bmc {
+    pub async fn get_product_by_id(
+        id: i32,
+        db: &impl DbPoolExtract<Postgres>,
+    ) -> QueryResult<Option<ProductDescription>> {
+        let product = sqlx::query_as!(
+            ProductDescription,
+            "SELECT
+                id, name, status as \"status:ProductStatus\",
+                price, description, stocks
+            FROM products
+            WHERE id = $1",
+            id
+        )
+        .fetch_optional(db.pool())
+        .await
+        .map_err(|e| crate::DbError::FailedSelect { log: e.to_string() })?;
+
+        Ok(product)
+    }
+
+    pub async fn set_product_status(
+        id: i32,
+        status: ProductStatus,
+        db: &impl DbPoolExtract<Postgres>,
+    ) -> QueryResult<()> {
+        let _ = sqlx::query!(
+            "UPDATE products
+            SET status = $1
+            WHERE id = $2",
+            status as ProductStatus,
+            id
+        )
+        .execute(db.pool())
+        .await
+        .map_err(|e| crate::DbError::FailedPatch { log: e.to_string() })?;
+
+        Ok(())
+    }
+
     pub async fn essential_list(
         page: Pagination<PageFilter>,
         db: &impl DbPoolExtract<Postgres>,
-    ) -> QueryResult<Vec<ProductEssential>> {
+    ) -> QueryResult<Vec<ProductID>> {
         let mut query = sqlx::QueryBuilder::new(
             "SELECT
                 name, id
@@ -104,11 +160,11 @@ impl Bmc {
     }
 
     pub async fn new_product(
-        product: NewProduct,
+        product: AddProduct,
         who: impl AsRef<Uuid>,
         db: &impl DbPoolExtract<Postgres>,
     ) -> QueryResult<()> {
-        let NewProduct {
+        let AddProduct {
             name,
             description,
             price,
@@ -151,6 +207,29 @@ impl Bmc {
         .map_err(|e| crate::DbError::FailedDelete { log: e.to_string() })?;
 
         Ok(())
+    }
+
+    pub async fn public_list<T: QueryFilterBuilder>(
+        page: Pagination<T>,
+        db: &impl DbPoolExtract<Postgres>,
+    ) -> QueryResult<Vec<ForPublicProductList>> {
+        let mut query = QueryBuilder::new(
+            "Select 
+                p.id,
+                p.name,
+                p.price
+            FROM products",
+        );
+
+        page.append_query(&mut query);
+
+        let list = query
+            .build_query_as::<ForPublicProductList>()
+            .fetch_all(db.pool())
+            .await
+            .map_err(|e| crate::DbError::FailedSelect { log: e.to_string() })?;
+
+        Ok(list)
     }
 
     pub async fn get_full_list<T: QueryFilterBuilder>(
