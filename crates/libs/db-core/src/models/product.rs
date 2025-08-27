@@ -7,6 +7,8 @@ use sqlx::{
 };
 use uuid::Uuid;
 
+use utoipa::ToSchema;
+
 use crate::{
     models::{Pagination, ProductStatus, QueryFilterBuilder, QueryResult},
     utils::DbPoolExtract,
@@ -18,13 +20,13 @@ use crate::{
 
 // region:    --- Schemas
 
-#[derive(Debug, FromRow, Serialize, Deserialize)]
-pub struct ProductEssential {
+#[derive(Debug, FromRow, Serialize, Deserialize, ToSchema)]
+pub struct ProductID {
     pub name: String,
     pub id: i32,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct AddProduct {
     pub name: String,
     pub description: Option<String>,
@@ -33,7 +35,7 @@ pub struct AddProduct {
     pub status: ProductStatus,
 }
 
-#[derive(Debug, FromRow, Deserialize, Serialize)]
+#[derive(Debug, FromRow, Deserialize, Serialize, ToSchema)]
 pub struct ProductDescription {
     pub id: i32,
     pub name: String,
@@ -43,7 +45,7 @@ pub struct ProductDescription {
     pub stocks: i32,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct UpdateProduct {
     pub id: i32,
     pub name: Option<String>,
@@ -52,14 +54,14 @@ pub struct UpdateProduct {
     pub stock: Option<i32>,
 }
 
-#[derive(Debug, FromRow, Deserialize, Serialize)]
+#[derive(Debug, FromRow, Deserialize, Serialize, ToSchema)]
 pub struct ForPublicProductList {
     pub id: i32,
     pub name: String,
     pub price: Decimal,
 }
 
-#[derive(Debug, FromRow, Serialize, Deserialize)]
+#[derive(Debug, FromRow, Serialize, Deserialize, ToSchema)]
 pub struct ForAdminProductList {
     pub id: i32,
     pub name: String,
@@ -74,7 +76,7 @@ pub struct ForAdminProductList {
     pub edited_at: Option<NaiveDateTime>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct PageFilter {
     min_price: Option<i32>,
     max_price: Option<i32>,
