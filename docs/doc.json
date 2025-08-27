@@ -10,7 +10,7 @@
   },
   "servers": [
     {
-      "url": "zcom-eht8.shuttle.app",
+      "url": "https://zcom-eht8.shuttle.app",
       "description": "deployed api hosted in shuttle"
     }
   ],

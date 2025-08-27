@@ -23,7 +23,7 @@ mod doc {
             description = "An e-commerce-service backend Api"
         ),
         servers(
-            (url="zcom-eht8.shuttle.app", description="deployed api hosted in shuttle")
+            (url="https://zcom-eht8.shuttle.app", description="deployed api hosted in shuttle")
         ),
         paths(
             auth::public::login
