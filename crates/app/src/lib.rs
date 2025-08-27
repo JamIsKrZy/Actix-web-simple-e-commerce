@@ -11,6 +11,7 @@ use actix_session::{
 use actix_web::cookie::{Key, SameSite, time::Duration};
 pub use doc::ApiDoc;
 pub use error::Error;
+use utoipa::OpenApi;
 
 mod doc {
     use crate::handlers::service::{self, auth};
