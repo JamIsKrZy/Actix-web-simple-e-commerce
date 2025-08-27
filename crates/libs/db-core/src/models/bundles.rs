@@ -1,31 +1,28 @@
-
-
-
-
 // region:    --- Schemas
-
 
 use chrono::NaiveDateTime;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
-use sqlx::{prelude::FromRow, Postgres, Transaction};
+use sqlx::{Postgres, Transaction, prelude::FromRow};
 use uuid::Uuid;
 
-use crate::{models::{Pagination, ProductStatus, QueryResult, BIND_LIMIT}, utils::DbPoolExtract};
+use utoipa::ToSchema;
 
+use crate::{
+    models::{BIND_LIMIT, Pagination, ProductStatus, QueryResult},
+    utils::DbPoolExtract,
+};
 
-#[derive(Debug, Deserialize, Serialize, FromRow)]
-pub struct BundleItem{
+#[derive(Debug, Deserialize, Serialize, FromRow, ToSchema)]
+pub struct BundleItem {
     pub product_id: i32,
-    pub quantity: i32
+    pub quantity: i32,
 }
 
-
-
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 #[serde_as]
-pub struct NewBundle{
+pub struct NewBundle {
     pub name: String,
     pub price: Decimal,
 
@@ -36,15 +33,14 @@ pub struct NewBundle{
     pub status: ProductStatus,
 }
 
-#[derive(Debug, FromRow, Serialize, Deserialize)]
-pub struct BundleItemDetail{
+#[derive(Debug, FromRow, Serialize, Deserialize, ToSchema)]
+pub struct BundleItemDetail {
     pub name: String,
-    pub quantity: i32
+    pub quantity: i32,
 }
 
-
-#[derive(Debug, Deserialize, Serialize, FromRow)]
-pub struct ForAdminBundleList{
+#[derive(Debug, Deserialize, Serialize, FromRow, ToSchema)]
+pub struct ForAdminBundleList {
     pub id: i32,
     pub name: String,
     pub price: Decimal,
@@ -55,41 +51,37 @@ pub struct ForAdminBundleList{
     pub created_by: String,
     pub created_at: NaiveDateTime,
     pub edited_by: Option<String>,
-    pub edited_at: Option<NaiveDateTime>
+    pub edited_at: Option<NaiveDateTime>,
 }
 
-
-
-
 // endregion: --- Schemas
-
-
 
 // region:    --- Bmc
 
 pub struct Bmc;
 
-impl Bmc{
-
+impl Bmc {
     pub async fn new_bundle(
         who: Uuid,
         bundle: NewBundle,
-        db: &impl DbPoolExtract<Postgres>
+        db: &impl DbPoolExtract<Postgres>,
     ) -> QueryResult<()> {
+        let mut trans = db
+            .transaction()
+            .await
+            .map_err(|_| crate::DbError::InitTransactionErr)?;
 
-        let mut trans = db.transaction().await
-            .map_err(|_| crate::DbError::InitTransactionErr)?; 
-
-        let NewBundle { 
-            name, 
-            price, 
-            items ,
-            status
+        let NewBundle {
+            name,
+            price,
+            items,
+            status,
         } = bundle;
 
         // Create an instance of the bundle
         // so items can reference to the bundle
-        let bundle_id = sqlx::query_scalar!("
+        let bundle_id = sqlx::query_scalar!(
+            "
             INSERT INTO bundles(
                 name, price, status, 
                 created_by
@@ -99,7 +91,9 @@ impl Bmc{
                 $4
             )
             RETURNING id",
-            name, price, status as ProductStatus,
+            name,
+            price,
+            status as ProductStatus,
             who
         )
         .fetch_one(&mut *trans)
@@ -108,8 +102,9 @@ impl Bmc{
 
         Self::insert_items_no_edit_record(bundle_id, items, &mut trans).await?;
 
-
-        trans.commit().await
+        trans
+            .commit()
+            .await
             .map_err(|_| crate::DbError::TransactionCommitErr)?;
 
         Ok(())
@@ -118,9 +113,8 @@ impl Bmc{
     async fn insert_items_no_edit_record(
         bundle_id: i32,
         items: impl AsRef<[BundleItem]>,
-        db: &mut Transaction<'static, Postgres>
+        db: &mut Transaction<'static, Postgres>,
     ) -> QueryResult<()> {
-
         let items = items.as_ref();
         let max_rows = BIND_LIMIT / 3; // 3 columns per row
         let items = &items[..items.len().min(max_rows)];
@@ -128,30 +122,28 @@ impl Bmc{
         let mut query = sqlx::QueryBuilder::new(
             "INSERT INTO bundle_items(
                 bundle_id, product_id, quantity
-            )"
+            )",
         );
-        
-        query.push_values(items, |mut q, i|{
+
+        query.push_values(items, |mut q, i| {
             q.push_bind(bundle_id)
                 .push_bind(i.product_id)
                 .push_bind(i.quantity);
         });
 
-        query.build()
+        query
+            .build()
             .execute(&mut **db)
             .await
             .map(|_| ())
-            .map_err(|e| 
-                crate::DbError::FailedInsert { log: e.to_string() }
-            ) 
+            .map_err(|e| crate::DbError::FailedInsert { log: e.to_string() })
     }
-
 
     pub async fn insert_items(
         who: Uuid,
         bundle_id: i32,
         items: impl AsRef<[BundleItem]>,
-        db: &impl DbPoolExtract<Postgres>
+        db: &impl DbPoolExtract<Postgres>,
     ) -> QueryResult<()> {
         Ok(())
     }
@@ -160,19 +152,16 @@ impl Bmc{
         who: Uuid,
         bundle_id: i32,
         items_id: impl AsRef<[BundleItem]>,
-        db: &impl DbPoolExtract<Postgres>
+        db: &impl DbPoolExtract<Postgres>,
     ) -> QueryResult<()> {
         Ok(())
     }
 
-    /// TODO: change db paramter to transaction 
     pub async fn get_full_list(
         page: Pagination<()>,
-        db: &impl DbPoolExtract<Postgres>
+        db: &impl DbPoolExtract<Postgres>,
     ) -> QueryResult<Vec<ForAdminBundleList>> {
-
-        
-        let mut query= sqlx::QueryBuilder::new(
+        let mut query = sqlx::QueryBuilder::new(
             "SELECT 
                 b.id, 
                 b.name, 
@@ -193,13 +182,9 @@ impl Bmc{
             .build_query_as::<ForAdminBundleList>()
             .fetch_all(db.pool())
             .await
-            .map_err(|e| 
-                crate::DbError::FailedSelect { log: e.to_string() }
-            )?;
-        
+            .map_err(|e| crate::DbError::FailedSelect { log: e.to_string() })?;
 
-        for i in list.iter_mut(){
-
+        for i in list.iter_mut() {
             let item_list = sqlx::query_as!(
                 BundleItemDetail,
                 "SELECT 
@@ -212,18 +197,14 @@ impl Bmc{
             )
             .fetch_all(db.pool())
             .await
-            .map_err(|e|
-                crate::DbError::FailedSelect { log: e.to_string() }
-            )?;
+            .map_err(|e| crate::DbError::FailedSelect { log: e.to_string() })?;
 
             i.items = Some(item_list);
         }
 
-
         Ok(list)
     }
- 
 }
 
-
 // endregion: --- Bmc
+

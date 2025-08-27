@@ -14,19 +14,21 @@ use serde::{Deserialize, Serialize};
 
 use support_core::password_hasher::HashPassword;
 
+use utoipa::{ToSchema, openapi::schema};
+
 // region:    --- States
 
 pub trait PasswordState {}
-#[derive(Debug)]
+#[derive(Debug, ToSchema)]
 pub struct RawPassword;
 impl PasswordState for RawPassword {}
 
-#[derive(Debug)]
+#[derive(Debug, ToSchema)]
 pub struct HashedPassword;
 impl PasswordState for HashedPassword {}
 // endregion: --- States
 
-#[derive(Debug, Type, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Type, Clone, Serialize, Deserialize, PartialEq, ToSchema)]
 #[sqlx(type_name = "user_role", rename_all = "PascalCase")]
 pub enum Role {
     Regular,
@@ -35,28 +37,31 @@ pub enum Role {
 }
 
 // region:    --- Schemas
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct Login<S: PasswordState> {
     pub username: String,
     pub password: String,
     #[serde(skip)]
+    #[schema(ignore)]
     _phantom: PhantomData<S>,
 }
 
-#[derive(Debug, Deserialize, FromRow)]
+#[derive(Debug, Deserialize, FromRow, ToSchema)]
 pub struct UserCredential {
     pub id: Uuid,
     pub password: String,
     pub role: Role,
 }
 
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct UserNewPassword<S: PasswordState> {
-    pub id: Uuid,
     pub password: String,
+    #[serde(skip)]
+    #[schema(ignore)]
     _marker: PhantomData<S>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct SignUpUser<S: PasswordState> {
     pub username: String,
     pub email: String,
@@ -66,11 +71,12 @@ pub struct SignUpUser<S: PasswordState> {
     pub location: String,
     pub password: String,
     #[serde(skip)]
+    #[schema(ignore)]
     _phantom: PhantomData<S>,
 }
 
 // added user coming from admin previlage
-#[derive(Debug, Deserialize, FromRow)]
+#[derive(Debug, Deserialize, FromRow, ToSchema)]
 pub struct AddUser<S: PasswordState> {
     pub username: String,
     pub email: String,
@@ -81,6 +87,7 @@ pub struct AddUser<S: PasswordState> {
     pub password: String,
     pub role: Role,
     #[serde(skip)]
+    #[schema(ignore)]
     pub _phantom: PhantomData<S>,
 }
 
@@ -277,6 +284,7 @@ impl Bmc {
     }
 
     pub async fn set_user_new_password(
+        from: Uuid,
         user: UserNewPassword<HashedPassword>,
         dm: &impl DbPoolExtract<Postgres>,
     ) -> QueryResult<()> {
@@ -285,7 +293,7 @@ impl Bmc {
             SET password = $1
             WHERE id = $2",
             user.password,
-            user.id
+            from
         )
         .execute(dm.pool())
         .await

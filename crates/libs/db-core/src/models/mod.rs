@@ -1,42 +1,33 @@
-
-
 use serde::{Deserialize, Serialize};
-use sqlx::{prelude::Type, Database, Postgres, QueryBuilder};
+use sqlx::{Postgres, QueryBuilder, prelude::Type};
+use utoipa::ToSchema;
 
-
-pub mod user;
-pub mod product;
 pub mod bundles;
-
+pub mod product;
+pub mod user;
 
 pub(in crate::models) type QueryResult<T> = Result<T, crate::DbError>;
-
 
 // region:    --- Shared Types
 
 const BIND_LIMIT: usize = 65535;
 
-
-#[derive(Debug, Type, Clone, Serialize, Deserialize, PartialEq)]
-#[sqlx(type_name="product_status", rename_all="PascalCase")]
-pub enum ProductStatus{
+#[derive(Debug, Type, Clone, Serialize, Deserialize, PartialEq, ToSchema)]
+#[sqlx(type_name = "product_status", rename_all = "PascalCase")]
+pub enum ProductStatus {
     Active,
-    Inactive
+    Inactive,
 }
 
-impl Default for ProductStatus{
+impl Default for ProductStatus {
     fn default() -> Self {
         Self::Inactive
     }
 }
 
-
 // endregion: --- Shared Types
 
-
-
-
-pub trait QueryFilterBuilder{
+pub trait QueryFilterBuilder {
     fn append_query(&self, query: &mut QueryBuilder<Postgres>);
 }
 
@@ -59,13 +50,13 @@ where
     pub filter: F,
 }
 
-impl<F: QueryFilterBuilder> Pagination<F>{
-    pub fn append_query(&self, query: &mut QueryBuilder<Postgres>){
+impl<F: QueryFilterBuilder> Pagination<F> {
+    pub fn append_query(&self, query: &mut QueryBuilder<Postgres>) {
         self.filter.append_query(query);
-        query.push(" LIMIT ")
+        query
+            .push(" LIMIT ")
             .push_bind(self.limit.unwrap_or(25))
             .push(" OFFSET ")
             .push_bind(self.page.unwrap_or(0));
     }
 }
-

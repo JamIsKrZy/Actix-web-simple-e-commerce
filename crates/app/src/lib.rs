@@ -3,14 +3,20 @@ pub mod error;
 pub mod handlers;
 pub mod set_up;
 
-
-use actix_session::{config::{CookieContentSecurity, PersistentSession}, storage::CookieSessionStore, SessionMiddleware};
-use actix_web::cookie::{time::Duration, Key, SameSite};
+use actix_session::{
+    SessionMiddleware,
+    config::{CookieContentSecurity, PersistentSession},
+    storage::CookieSessionStore,
+};
+use actix_web::cookie::{Key, SameSite, time::Duration};
 pub use error::Error;
+use utoipa::OpenApi;
 
+#[derive(OpenApi)]
+#[openapi(info(description = "An e-commerce-service backend Api"))]
+pub struct ApiDoc;
 
-
-pub fn build_session_handler(key: Key) -> SessionMiddleware<CookieSessionStore>{
+pub fn build_session_handler(key: Key) -> SessionMiddleware<CookieSessionStore> {
     let cookie_storage = CookieSessionStore::default();
     let duration = Duration::days(1);
 
@@ -27,8 +33,3 @@ pub fn build_session_handler(key: Key) -> SessionMiddleware<CookieSessionStore>{
         .session_lifecycle(PersistentSession::default().session_ttl(duration))
         .build()
 }
-
-
-
-
-

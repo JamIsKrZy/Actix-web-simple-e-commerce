@@ -7,12 +7,13 @@ members = [
   "crates/libs/extension",
   "crates/libs/lib-core",
 
+  # -- Doc build script
+  "crates/doc_build",
+
   # -- Application Services
   "crates/app",
 ]
 default-members = ["crates/app"]
-
-
 
 
 [workspace.dependencies]

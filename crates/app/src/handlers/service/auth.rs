@@ -22,6 +22,12 @@ pub mod public {
         cfg.service(login).service(signup);
     }
 
+    #[utoipa::path(
+        responses(
+            (status = 200, description="User Granted"),
+            (status = 500, description="Causes: Failed Hash, Failed signing claim, Failed cookie session")
+        )
+    )]
     #[post("/login")]
     async fn login(
         info: web::Json<Login<RawPassword>>,
@@ -41,7 +47,7 @@ pub mod public {
             .verify_password(hasher, stored_user.password)
             .await
             .map_err(|_| crate::Error::InternalError)?
-            .map_err(crate::Error::HashErr)?;
+            .map_err(crate::Error::HashErr)?; // Wrong Password
 
         let claim = Claim::new().map_err(|_| crate::Error::InternalError)?;
 

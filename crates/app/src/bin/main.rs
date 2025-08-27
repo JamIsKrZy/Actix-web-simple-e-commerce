@@ -1,7 +1,9 @@
 use actix_web::{App, HttpServer, middleware::Logger, web};
 
-use app::{config, handlers};
+use app::{ApiDoc, config, handlers};
 use lib_core::AppPasswordHasher;
+use utoipa::OpenApi;
+use utoipa_rapidoc::RapiDoc;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

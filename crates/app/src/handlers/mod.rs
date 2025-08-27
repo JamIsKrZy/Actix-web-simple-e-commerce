@@ -1,33 +1,28 @@
-use actix_web::{web::{self, ServiceConfig}, HttpResponse, Responder};
+use actix_web::{
+    HttpResponse, Responder,
+    web::{self, ServiceConfig},
+};
+use utoipa_rapidoc::RapiDoc;
 
-
-mod service;
 mod pages;
+mod service;
 
 pub(in crate::handlers) type HandlerResult<T: Responder> = Result<T, crate::Error>;
 
 #[derive(Debug)]
-pub enum SessionErr{
+pub enum SessionErr {
     FailedToDeserialize,
-    MissingToken
+    MissingToken,
 }
 
-pub fn scope(cfg: &mut ServiceConfig){
-
+pub fn scope(cfg: &mut ServiceConfig) {
     cfg.default_service(web::to(default_route))
-        .configure(service::scope)
-        .configure(pages::scope)
-        
-    ;
+        .configure(service::scope);
 }
 
-
-
-
-async fn default_route() -> impl Responder{
+async fn default_route() -> impl Responder {
     HttpResponse::NotFound().body(include_str!("../../../../static/notFound.html"))
 }
-
 
 #[macro_export]
 macro_rules! bind_scope_handlers {
@@ -55,7 +50,7 @@ macro_rules! bind_handlers {
 }
 
 #[deprecated]
-mod macro_utils{
+mod macro_utils {
     #[macro_export]
     macro_rules! define_scopes {
         ($service_config: expr, $handlers:ident $(, $routes:ident)*) => {
@@ -68,8 +63,6 @@ mod macro_utils{
                 $(.service(routes))*
 
         }
-        
+
     }
 }
-
-

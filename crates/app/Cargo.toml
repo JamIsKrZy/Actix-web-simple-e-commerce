@@ -4,33 +4,45 @@ version = "0.1.0"
 edition = "2024"
 
 [features]
-dev_env=[]
+dev_env = []
+default = []
+shuttle = [
+  "dep:shuttle-runtime",
+  "dep:shuttle-actix-web",
+  "dep:shuttle-shared-db",
+]
+
 
 [dependencies]
-actix-web={workspace = true, features = ["rustls-0_23"]}
-actix-session={workspace = true}
+actix-web = { workspace = true, features = ["rustls-0_23"] }
+actix-session = { workspace = true }
 actix-files = "0.6.6"
+rustls = "0.23.31"
 
 # Serializer
-serde={workspace = true}
-serde_json={workspace = true}
+serde = { workspace = true }
+serde_json = { workspace = true }
 
 # Extra Crates
-dotenvy = {workspace = true}
+dotenvy = { workspace = true }
 derive_more = "2.0.1"
 env_logger = "0.11.8"
 log = "0.4.27"
+utoipa = { version = "5.4.0", features = ["actix_extras"] }
+utoipa-rapidoc = { version = "6.0.0", features = ["actix-web"] }
+sqlx = "0.8.6"
 
 # local crates
-db-core={path = "../libs/db-core"}
-lib-core={path = "../libs/lib-core"}
-support-core={path = "../libs/support-core"}
-extension={path = "../libs/extension"}
+db-core = { path = "../libs/db-core" }
+lib-core = { path = "../libs/lib-core" }
+support-core = { path = "../libs/support-core" }
+extension = { path = "../libs/extension" }
 
 
 # Cloud Host Service
-shuttle-actix-web = "0.56.0"
-shuttle-runtime = "0.56.0"
-rustls = "0.23.31"
-shuttle-shared-db = { version = "0.56.0", features = ["postgres", "sqlx"] }
-sqlx = "0.8.6"
+shuttle-actix-web = { version = "0.56.0", optional = true }
+shuttle-runtime = { version = "0.56.0", optional = true }
+shuttle-shared-db = { version = "0.56.0", optional = true, features = [
+  "postgres",
+  "sqlx",
+] }
