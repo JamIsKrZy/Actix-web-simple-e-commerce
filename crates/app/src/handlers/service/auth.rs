@@ -29,7 +29,7 @@ pub mod public {
         )
     )]
     #[post("/login")]
-    async fn login(
+    pub async fn login(
         info: web::Json<Login<RawPassword>>,
         pass_hash: web::Data<AppPasswordHasher>,
         db: web::Data<PostgressDbManager>,
@@ -68,7 +68,7 @@ pub mod public {
     }
 
     #[get("/check")]
-    async fn check(session: Session) -> impl Responder {
+    pub async fn check(session: Session) -> impl Responder {
         let contxt = session.get::<Context>("usr_ctx");
 
         match contxt {
@@ -83,7 +83,7 @@ pub mod public {
     }
 
     #[post("/signup")]
-    async fn signup(
+    pub async fn signup(
         info: web::Form<SignUpUser<RawPassword>>,
         pass_hash: web::Data<AppPasswordHasher>,
         db: web::Data<PostgressDbManager>,

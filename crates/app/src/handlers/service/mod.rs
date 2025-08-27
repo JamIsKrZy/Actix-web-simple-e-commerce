@@ -2,10 +2,10 @@ use actix_web::web::{self, ServiceConfig};
 use db_core::{Role, ctx::Context};
 use extension::auth_jwt::PermittedType;
 
-mod auth;
-mod bundle;
-mod product;
-mod user;
+pub mod auth;
+pub mod bundle;
+pub mod product;
+pub mod user;
 
 type PermittedRoles = PermittedType<Context>;
 

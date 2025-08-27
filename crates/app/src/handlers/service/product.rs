@@ -25,13 +25,13 @@ pub mod public {
     }
 
     #[get("/list")]
-    async fn display_list() -> HandlerResult<HttpResponse> {
+    pub async fn display_list() -> HandlerResult<HttpResponse> {
         todo!()
     }
 
     /// This list is primarly used for
     #[get("/essential-list")]
-    async fn select_option_list(
+    pub async fn select_option_list(
         page: web::Query<Pagination<PageFilter>>,
         acpt: extension::extractor::Accepted,
         db: web::Data<PostgressDbManager>,
@@ -62,7 +62,7 @@ pub mod user {
     }
 
     #[get("/foryou")]
-    async fn for_you() -> HandlerResult<HttpResponse> {
+    pub async fn for_you() -> HandlerResult<HttpResponse> {
         Ok(HttpResponse::NotImplemented().body("Not Yet Implemented"))
     }
 }
@@ -99,7 +99,7 @@ pub mod admin {
     }
 
     #[post("/new")]
-    async fn create_product(
+    pub async fn create_product(
         info: web::Json<AddProduct>,
         db: web::Data<PostgressDbManager>,
         usr_ctx: extension::extractor::Context,
@@ -112,7 +112,7 @@ pub mod admin {
     }
 
     #[delete("/delete/{id}")]
-    async fn delete_product(
+    pub async fn delete_product(
         id: web::Path<(i32,)>,
         db: web::Data<PostgressDbManager>,
     ) -> HandlerResult<HttpResponse> {
@@ -124,7 +124,7 @@ pub mod admin {
     }
 
     #[get("/list")]
-    async fn full_detail_list(
+    pub async fn full_detail_list(
         page: web::Query<Pagination<()>>,
         acpt: extension::extractor::Accepted,
         db: web::Data<PostgressDbManager>,
@@ -157,7 +157,7 @@ pub mod admin {
     }
 
     #[patch("/toggle-status/{id}")]
-    async fn toggle_product_status(id: web::Path<(i32,)>) -> HandlerResult<HttpResponse> {
+    pub async fn toggle_product_status(id: web::Path<(i32,)>) -> HandlerResult<HttpResponse> {
         Ok(HttpResponse::NotImplemented().body(""))
     }
 }

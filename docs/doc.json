@@ -1,13 +1,85 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "app",
+    "title": "ZCom",
     "description": "An e-commerce-service backend Api",
     "license": {
       "name": ""
     },
     "version": "0.1.0"
   },
-  "paths": {},
-  "components": {}
+  "servers": [
+    {
+      "url": "zcom-eht8.shuttle.app",
+      "description": "deployed api hosted in shuttle"
+    }
+  ],
+  "paths": {
+    "/login": {
+      "post": {
+        "tags": [
+          "auth::public"
+        ],
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Login_RawPassword"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "User Granted"
+          },
+          "500": {
+            "description": "Causes: Failed Hash, Failed signing claim, Failed cookie session"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Login_RawPassword": {
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "properties": {
+          "password": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      },
+      "RawPassword": {
+        "default": null
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "public",
+      "description": "Public endpoints that is open the guests and users"
+    },
+    {
+      "name": "user",
+      "description": "Authenticated Endpoints for valid users"
+    },
+    {
+      "name": "worker",
+      "description": "Authenticated Endpoints for worker users"
+    },
+    {
+      "name": "admin",
+      "description": "Authenticated Endpoints for admin users"
+    }
+  ]
 }

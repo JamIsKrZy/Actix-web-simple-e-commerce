@@ -5,8 +5,9 @@ use actix_web::{
 use utoipa_rapidoc::RapiDoc;
 
 mod pages;
-mod service;
+pub mod service;
 
+// Return Type used in every service handler
 pub(in crate::handlers) type HandlerResult<T: Responder> = Result<T, crate::Error>;
 
 #[derive(Debug)]
