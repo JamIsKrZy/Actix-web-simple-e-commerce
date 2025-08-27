@@ -12,7 +12,7 @@ fn main() {
         .expect("Failed to generate OpenAPI JSON");
 
     // Target output directory: ../../doc
-    let out_dir = Path::new("../../doc");
+    let out_dir = Path::new("../../docs");
 
     // Ensure target directory exists
     fs::create_dir_all(out_dir).expect("Failed to create ../../doc directory");
