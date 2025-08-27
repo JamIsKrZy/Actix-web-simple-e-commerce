@@ -14,7 +14,7 @@ pub use error::Error;
 use utoipa::OpenApi;
 
 mod doc {
-    use crate::handlers::service::{self, auth};
+    use crate::handlers::service::auth;
     use utoipa::OpenApi;
 
     #[derive(OpenApi)]
