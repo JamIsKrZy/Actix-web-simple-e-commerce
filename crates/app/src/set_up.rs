@@ -44,8 +44,13 @@ pub mod shuttle {
             let allowed_origins = allowed_origins.leak();
 
             for o in allowed_origins.split(",") {
-                cors = cors.allowed_origin(o)
+                cors = cors.allowed_origin(o);
+                log::info!("Allowed Origin: {}", o);
+                println!("Allowed Origin: {}", o);
             }
+        } else {
+            log::info!("ALLOWED_ORIGIN not found!");
+            println!("ALLOWED_ORIGIN not found!");
         }
 
         cors.allow_any_method().allowed_headers(&[
