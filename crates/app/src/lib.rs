@@ -23,7 +23,9 @@ mod doc {
             description = "An e-commerce-service backend Api"
         ),
         servers(
-            (url="https://zcom-eht8.shuttle.app", description="deployed api hosted in shuttle")
+            (url="https://zcom-eht8.shuttle.app", description="deployed api hosted in shuttle"),
+            (url="http://192.168.244.X:8000", description="If API is available in LAN"),
+            (url="http://127.0.0.1:8000", description="If Api is available in localhost network")
         ),
         paths(
             auth::public::login
