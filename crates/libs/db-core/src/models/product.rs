@@ -1,47 +1,49 @@
-
-use chrono::{ NaiveDateTime};
+use chrono::NaiveDateTime;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-use sqlx::{prelude::{FromRow, Type},  Postgres, QueryBuilder};
+use sqlx::{
+    Postgres, QueryBuilder,
+    prelude::{FromRow, Type},
+};
 use uuid::Uuid;
 
-use crate::{models::{Pagination, ProductStatus, QueryFilterBuilder, QueryResult}, utils::DbPoolExtract};
-
+use crate::{
+    models::{Pagination, ProductStatus, QueryFilterBuilder, QueryResult},
+    utils::DbPoolExtract,
+};
 
 // region:    --- Enum type
 
-
 // endregion: --- Enum type
-
 
 // region:    --- Schemas
 
 #[derive(Debug, FromRow, Serialize, Deserialize)]
-pub struct ProductEssential{
+pub struct ProductEssential {
     pub name: String,
     pub id: i32,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct NewProduct{
+pub struct NewProduct {
     pub name: String,
     pub description: Option<String>,
     pub price: Decimal,
     pub stock: i32,
-    pub status: ProductStatus
-} 
+    pub status: ProductStatus,
+}
 
 #[derive(Debug, Deserialize)]
-pub struct UpdateProduct{
+pub struct UpdateProduct {
     pub id: i32,
     pub name: Option<String>,
     pub description: Option<String>,
     pub price: Option<Decimal>,
-    pub stock: Option<i32>
+    pub stock: Option<i32>,
 }
 
-#[derive(Debug,FromRow, Serialize, Deserialize)]
-pub struct ForAdminProductList{
+#[derive(Debug, FromRow, Serialize, Deserialize)]
+pub struct ForAdminProductList {
     pub id: i32,
     pub name: String,
     pub status: ProductStatus,
@@ -52,28 +54,26 @@ pub struct ForAdminProductList{
     pub created_at: NaiveDateTime,
 
     pub edited_by: Option<String>,
-    pub edited_at: Option<NaiveDateTime>
+    pub edited_at: Option<NaiveDateTime>,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct PageFilter{
+pub struct PageFilter {
     min_price: Option<i32>,
     max_price: Option<i32>,
     prefix: Option<String>,
 }
 
-impl QueryFilterBuilder for PageFilter{
+impl QueryFilterBuilder for PageFilter {
     fn append_query(&self, query: &mut QueryBuilder<Postgres>) {
-
-
         if let Some(prefix) = &self.prefix {
-            query.push("WHERE name ILIKE ")
+            query
+                .push("WHERE name ILIKE ")
                 .push_bind(format!("{}%", prefix));
         }
         return;
     }
 }
-
 
 // endregion: --- Schemas
 
@@ -81,18 +81,15 @@ impl QueryFilterBuilder for PageFilter{
 
 pub struct Bmc;
 
-impl Bmc{
-
-
+impl Bmc {
     pub async fn essential_list(
         page: Pagination<PageFilter>,
-        db: &impl DbPoolExtract<Postgres> 
-    ) -> QueryResult<Vec<ProductEssential>>{
-
+        db: &impl DbPoolExtract<Postgres>,
+    ) -> QueryResult<Vec<ProductEssential>> {
         let mut query = sqlx::QueryBuilder::new(
             "SELECT
                 name, id
-                FROM products "
+                FROM products ",
         );
 
         page.append_query(&mut query);
@@ -101,9 +98,7 @@ impl Bmc{
             .build_query_as::<ProductEssential>()
             .fetch_all(db.pool())
             .await
-            .map_err(|e| 
-                crate::DbError::FailedSelect { log: e.to_string() }
-            )?;
+            .map_err(|e| crate::DbError::FailedSelect { log: e.to_string() })?;
 
         Ok(list)
     }
@@ -111,18 +106,18 @@ impl Bmc{
     pub async fn new_product(
         product: NewProduct,
         who: impl AsRef<Uuid>,
-        db: &impl DbPoolExtract<Postgres> 
+        db: &impl DbPoolExtract<Postgres>,
     ) -> QueryResult<()> {
-
-        let NewProduct { 
-            name, 
-            description, 
-            price, 
-            stock ,
-            status
+        let NewProduct {
+            name,
+            description,
+            price,
+            stock,
+            status,
         } = product;
-        
-        let _ = sqlx::query!("
+
+        let _ = sqlx::query!(
+            "
             INSERT INTO products(
                 name, description, price, status,
                 stocks, created_by 
@@ -130,25 +125,23 @@ impl Bmc{
                 $1, $2, $3, $4,
                 $5, $6
             )",
-            name, description, price, status as ProductStatus,
-            stock, who.as_ref()
+            name,
+            description,
+            price,
+            status as ProductStatus,
+            stock,
+            who.as_ref()
         )
         .execute(db.pool())
         .await
-        .map_err(|e| 
-            crate::DbError::FailedInsert { log: e.to_string() }
-        )?;
+        .map_err(|e| crate::DbError::FailedInsert { log: e.to_string() })?;
 
         Ok(())
-
     }
 
-    pub async fn delete_one(
-        id: i32,
-        db: &impl DbPoolExtract<Postgres>
-    ) -> QueryResult<()>{
-        
-        let _ = sqlx::query!("
+    pub async fn delete_one(id: i32, db: &impl DbPoolExtract<Postgres>) -> QueryResult<()> {
+        let _ = sqlx::query!(
+            "
             DELETE FROM products
             WHERE id = $1",
             id
@@ -156,16 +149,14 @@ impl Bmc{
         .execute(db.pool())
         .await
         .map_err(|e| crate::DbError::FailedDelete { log: e.to_string() })?;
-        
-        Ok(())
 
+        Ok(())
     }
 
     pub async fn get_full_list<T: QueryFilterBuilder>(
         page: Pagination<T>,
-        db: &impl DbPoolExtract<Postgres>
+        db: &impl DbPoolExtract<Postgres>,
     ) -> QueryResult<Vec<ForAdminProductList>> {
-
         let mut query = QueryBuilder::new(
             "SELECT 
                 p.id, 
@@ -180,7 +171,7 @@ impl Bmc{
                 p.edited_at
             FROM products AS p
             LEFT JOIN users AS uc ON p.created_by = uc.id
-            LEFT JOIN users AS ue ON p.edited_by = ue.id"
+            LEFT JOIN users AS ue ON p.edited_by = ue.id",
         );
 
         page.append_query(&mut query);
@@ -193,7 +184,6 @@ impl Bmc{
 
         Ok(list)
     }
-
 }
 
 // endregion: --- Bmc
