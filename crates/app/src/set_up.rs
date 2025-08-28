@@ -4,8 +4,9 @@ type SessionCookie = SessionMiddleware<CookieSessionStore>;
 
 #[cfg(feature = "shuttle")]
 pub mod shuttle {
+    use actix_cors::Cors;
     use actix_session::{SessionMiddleware, storage::CookieSessionStore};
-    use actix_web::cookie::Key;
+    use actix_web::{cookie::Key, http::header, web::head};
     use lib_core::{AppPasswordHasher, JwtHandler};
     use shuttle_runtime::SecretStore;
     use sqlx::PgPool;
@@ -34,6 +35,24 @@ pub mod shuttle {
         } else {
             // Migration Applied!
         }
+    }
+
+    pub fn cors(secrets: &SecretStore) -> Cors {
+        let mut cors = Cors::default();
+
+        if let Some(allowed_origins) = secrets.get("ALLOWED_ORIGIN") {
+            let allowed_origins = allowed_origins.leak();
+
+            for o in allowed_origins.split(",") {
+                cors = cors.allowed_origin(o)
+            }
+        }
+
+        cors.allow_any_method().allowed_headers(&[
+            header::ACCEPT,
+            header::AUTHORIZATION,
+            header::CONTENT_TYPE,
+        ])
     }
 
     fn init_session(secret: &str) -> SessionMiddleware<CookieSessionStore> {
@@ -132,4 +151,3 @@ pub mod seed {
         }
     }
 }
-
