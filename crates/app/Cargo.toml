@@ -34,3 +34,4 @@ shuttle-runtime = "0.56.0"
 rustls = "0.23.31"
 shuttle-shared-db = { version = "0.56.0", features = ["postgres", "sqlx"] }
 sqlx = "0.8.6"
+actix-cors = "0.7.1"
