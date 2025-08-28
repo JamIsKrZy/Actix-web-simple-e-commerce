@@ -23,6 +23,7 @@ pub mod public {
     }
 
     #[utoipa::path(
+        path="/api/login",
         responses(
             (status = 200, description="User Granted"),
             (status = 500, description="Causes: Failed Hash, Failed signing claim, Failed cookie session")

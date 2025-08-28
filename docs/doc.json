@@ -23,7 +23,7 @@
     }
   ],
   "paths": {
-    "/login": {
+    "/api/login": {
       "post": {
         "tags": [
           "auth::public"
