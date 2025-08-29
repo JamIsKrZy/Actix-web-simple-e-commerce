@@ -1,14 +1,15 @@
 use std::borrow::Cow;
 
-use actix_web::{http::StatusCode, ResponseError};
+use actix_web::{HttpResponse, ResponseError, http::StatusCode};
 use derive_more::Display;
 use support_core::password_hasher::HashError;
 
 use crate::handlers::SessionErr;
 
-
 #[derive(Debug, Display)]
-pub enum Error{
+pub enum Error {
+    #[display("Failed")]
+    FailedRequestProcess(HttpResponse),
 
     #[display("Unable to read Cookie")]
     CookieError(SessionErr),
@@ -29,25 +30,26 @@ pub enum Error{
     #[display("Internal Server Problem")]
     InternalError,
 
-    External(Cow<'static, str>)
+    External(Cow<'static, str>),
 }
 
-
-impl ResponseError for Error{
+impl ResponseError for Error {
     fn status_code(&self) -> actix_web::http::StatusCode {
-        actix_web::http::StatusCode::INTERNAL_SERVER_ERROR
+        match self {
+            Error::FailedRequestProcess(r) => r.status(),
+            _ => actix_web::http::StatusCode::INTERNAL_SERVER_ERROR,
+        }
     }
 }
 
-impl From<SessionErr> for Error{
+impl From<SessionErr> for Error {
     fn from(value: SessionErr) -> Self {
         Self::CookieError(value)
     }
 }
 
-impl From<db_core::DbError> for Error{
-    fn from(value: db_core::DbError ) -> Self {
+impl From<db_core::DbError> for Error {
+    fn from(value: db_core::DbError) -> Self {
         Self::DatabaseError(value)
     }
 }
-

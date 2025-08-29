@@ -158,7 +158,7 @@ impl Bmc {
     }
 
     pub async fn new_product(
-        product: AddProduct,
+        product: NewProduct,
         who: impl AsRef<Uuid>,
         db: &impl DbPoolExtract<Postgres>,
     ) -> QueryResult<()> {

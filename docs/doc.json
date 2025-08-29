@@ -43,8 +43,14 @@
           "200": {
             "description": "User Granted"
           },
+          "401": {
+            "description": "Wrong password"
+          },
+          "404": {
+            "description": "User Not Found"
+          },
           "500": {
-            "description": "Causes: Failed Hash, Failed signing claim, Failed cookie session"
+            "description": "Cause: Failed signing claim, Failed cookie session"
           }
         }
       }
