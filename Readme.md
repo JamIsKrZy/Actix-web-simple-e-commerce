@@ -9,6 +9,18 @@
 
 
 
+### Run Docker image
+Environment Variables
+
+```Env
+DATABASE_URL=""
+SECRET=""
+SERVICE_ADDR=""
+SERVICE_PORT=""
+SERVICE_WORKER=""
+
+```
+
 
 ### Toolkits
 - Cargo make - task runner
