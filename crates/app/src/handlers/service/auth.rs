@@ -25,7 +25,12 @@ pub mod public {
     #[utoipa::path(
         path="/api/login",
         responses(
-            (status = 200, description="User Granted"),
+            (status = 200, description="User Granted",
+                headers(
+                    ("Authorization" = String, description = "JWT token returned"),
+                    ("Set-Cookie" = String, description = "Session cookie")
+                )
+            ),
             (status = 401, description="Wrong password"),
             (status = 404, description="User Not Found"),
             (status = 500, description="Cause: Failed signing claim, Failed cookie session")
@@ -44,8 +49,9 @@ pub mod public {
         let stored_user = user::Bmc::fetch_one_credential(username, dm)
             .await
             .map_err(|_| {
-                crate::Error::FailedRequestProcess(
-                    HttpResponse::NotFound().body("Invalid username or password!"),
+                crate::Error::FailedProcess(
+                    StatusCode::NOT_FOUND,
+                    Cow::Borrowed("Invallid username or password!"),
                 )
             })?;
 
@@ -55,8 +61,9 @@ pub mod public {
             .await
             .map_err(|_| crate::Error::InternalError)?
             .map_err(|_| {
-                crate::Error::FailedRequestProcess(
-                    HttpResponse::Unauthorized().body("Invalid username or password!"),
+                crate::Error::FailedProcess(
+                    StatusCode::UNAUTHORIZED,
+                    Cow::Borrowed("Invallid username or password!"),
                 )
             })?;
 
@@ -65,7 +72,6 @@ pub mod public {
         let claim = jwt
             .encode(&claim)
             .map_err(|_| crate::Error::InternalError)?;
-
         let ctx = Context::new(stored_user.id, stored_user.role);
 
         // Give User session

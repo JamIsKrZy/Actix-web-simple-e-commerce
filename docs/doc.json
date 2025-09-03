@@ -41,7 +41,21 @@
         },
         "responses": {
           "200": {
-            "description": "User Granted"
+            "description": "User Granted",
+            "headers": {
+              "Authorization": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "JWT token returned"
+              },
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Session cookie"
+              }
+            }
           },
           "401": {
             "description": "Wrong password"
