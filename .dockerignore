@@ -1,0 +1,16 @@
+#Ignore the target directory from local builds
+
+target/
+#Ignore local editor/IDE-specific files
+
+.idea/
+.vscode/
+.DS_Store
+#Ignore Git-related files
+
+.git
+.gitignore
+#Ignore temporary files or logs
+
+*.log
+tmp/
