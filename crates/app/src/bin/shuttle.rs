@@ -1,3 +1,8 @@
+//
+// Disable contents when building the main bin
+//
+#![cfg(feature = "shuttle")]
+
 use std::sync::Arc;
 
 use actix_web::web::{self, ServiceConfig};

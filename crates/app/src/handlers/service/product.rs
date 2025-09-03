@@ -80,7 +80,7 @@ pub mod admin {
         PostgressDbManager,
         models::{
             Pagination,
-            product::{self, AddProduct},
+            product::{self, NewProduct},
         },
     };
     use extension::extractor::Accepted;
@@ -100,7 +100,7 @@ pub mod admin {
 
     #[post("/new")]
     async fn create_product(
-        info: web::Json<AddProduct>,
+        info: web::Json<NewProduct>,
         db: web::Data<PostgressDbManager>,
         usr_ctx: extension::extractor::Context,
     ) -> HandlerResult<HttpResponse> {

@@ -6,7 +6,7 @@ WORKDIR /app/
 # crate app
 RUN cargo new ./crates/app --bin
 RUN mkdir -p ./crates/app/src/bin \
-    && echo 'fn main() { println!("Hello from main.rs bin!"); }' > ./crates/app/src/bin/main.rs 
+  && echo 'fn main() { println!("Hello from main.rs bin!"); }' > ./crates/app/src/bin/main.rs 
 COPY ./crates/app/Cargo.toml ./crates/app/Cargo.toml 
 
 
@@ -26,9 +26,11 @@ COPY ./crates/libs/lib-core/Cargo.toml ./crates/libs/lib-core/Cargo.toml
 RUN cargo new ./crates/libs/support-core --lib
 COPY ./crates/libs/support-core/Cargo.toml ./crates/libs/support-core/Cargo.toml
 
+RUN cargo new ./crates/doc_build --lib
+
 
 # BUILDS THE DEPENDENCIES
-COPY ./Cargo.toml ./Cargo.lock .
+COPY ./Cargo.toml ./Cargo.lock ./
 RUN --mount=type=cache,target=/usr/local/cargo/registry cargo build --release --bin main
 
 
@@ -65,16 +67,16 @@ FROM debian:bookworm-slim
 ARG APP=/user/local/bin
 
 RUN apt-get update \
-    && apt install -y ca-certificates tzdata \
-    && rm -rf /var/lib/apt/lists/
+  && apt install -y ca-certificates tzdata \
+  && rm -rf /var/lib/apt/lists/
 
 ENV TZ=Etc/UTC \
-    APP_USER=appuser
-    
+  APP_USER=appuser
+
 
 RUN groupadd $APP_USER \
-    && useradd -g $APP_USER $APP_USER \
-    && mkdir -p ${APP}
+  && useradd -g $APP_USER $APP_USER \
+  && mkdir -p ${APP}
 
 COPY --from=builder /app/target/release/main ${APP}/app
 
@@ -82,6 +84,12 @@ RUN chown -R $APP_USER:$APP_USER ${APP}
 
 USER $APP_USER
 WORKDIR ${APP}
+
+
+# SET DEFAULT ENVIRONMENT 
+ENV SERVICE_ADDR=0.0.0.0
+ENV SERVICE_PORT=8000
+
 
 ENTRYPOINT ["./app"]
 EXPOSE 8000

@@ -19,7 +19,7 @@ use crate::{
 // region:    --- Schemas
 
 #[derive(Debug, FromRow, Serialize, Deserialize)]
-pub struct ProductEssential {
+pub struct ProductId {
     pub name: String,
     pub id: i32,
 }
@@ -69,9 +69,8 @@ impl QueryFilterBuilder for PageFilter {
         if let Some(prefix) = &self.prefix {
             query
                 .push("WHERE name ILIKE ")
-                .push_bind(format!("{}%", prefix));
+                .push_bind(format!("{prefix}%"));
         }
-        return;
     }
 }
 
@@ -85,7 +84,7 @@ impl Bmc {
     pub async fn essential_list(
         page: Pagination<PageFilter>,
         db: &impl DbPoolExtract<Postgres>,
-    ) -> QueryResult<Vec<ProductEssential>> {
+    ) -> QueryResult<Vec<ProductId>> {
         let mut query = sqlx::QueryBuilder::new(
             "SELECT
                 name, id
@@ -95,7 +94,7 @@ impl Bmc {
         page.append_query(&mut query);
 
         let list = query
-            .build_query_as::<ProductID>()
+            .build_query_as::<ProductId>()
             .fetch_all(db.pool())
             .await
             .map_err(|e| crate::DbError::FailedSelect { log: e.to_string() })?;
@@ -104,7 +103,7 @@ impl Bmc {
     }
 
     pub async fn new_product(
-        product: AddProduct,
+        product: NewProduct,
         who: impl AsRef<Uuid>,
         db: &impl DbPoolExtract<Postgres>,
     ) -> QueryResult<()> {

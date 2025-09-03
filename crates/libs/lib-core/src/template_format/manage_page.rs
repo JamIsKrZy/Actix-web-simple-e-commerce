@@ -122,7 +122,7 @@ mod filters {
 
 pub mod util {
     use askama::Template;
-    use db_core::models::product::ProductID;
+    use db_core::models::product::ProductId;
 
     #[derive(Debug, Template)]
     #[template(
@@ -136,11 +136,11 @@ pub mod util {
         ext = "html"
     )]
     pub struct OptionProductsTemplate {
-        lists: Vec<ProductID>,
+        lists: Vec<ProductId>,
     }
 
-    impl From<Vec<ProductID>> for OptionProductsTemplate {
-        fn from(value: Vec<ProductID>) -> Self {
+    impl From<Vec<ProductId>> for OptionProductsTemplate {
+        fn from(value: Vec<ProductId>) -> Self {
             Self { lists: value }
         }
     }
